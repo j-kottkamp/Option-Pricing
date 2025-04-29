@@ -1,8 +1,14 @@
 import requests, json
 import pandas as pd
 import datetime
+import os
+from dotenv import load_dotenv
 
 def getHistData(data):
+    dotenv_path = os.path.join(os.path.dirname(__file__), '..', '..', '.env')
+    load_dotenv(dotenv_path=dotenv_path)
+    api_key = os.getenv("API_KEY")
+    secret_key = os.getenv("API_SECRET_KEY")
     symbol=data["ticker"]
     tf=data["tf"]
     limit=data["limit"]
@@ -18,8 +24,8 @@ def getHistData(data):
 
     headers = {
         "accept": "application/json",
-        "APCA-API-KEY-ID": "PKNUIYFSASOKVHTZD66W",
-        "APCA-API-SECRET-KEY": "lkO3kIHVpSgqyh39c2VL47HguKI1BwzkRgt88AXw"
+        "APCA-API-KEY-ID": api_key,
+        "APCA-API-SECRET-KEY": secret_key
     }
 
     search = url1 if not live else url2

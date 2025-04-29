@@ -15,7 +15,7 @@ def main():
     T = delta/252 # Time to maturity (years)
     σ = 0.0729 # Volatility/ Std. deviation
     r = 0.05 # Risk free rate
-    optionType = "msm_call" # str, "call", "put" or "msm_call"
+    optionType = "call" # str, "call", "put" or "msm_call"
     data = {"ticker": "AAPL",
             "tf": "15Min",
             "limit": "10000",
