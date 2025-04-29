@@ -1,0 +1,7 @@
+pip install numpy pandas matplotlib scipy statsmodels
+
+numpy,
+pandas,
+matplotlib,
+scipy,
+statsmodels
