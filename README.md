@@ -23,12 +23,18 @@ Applies MSM-generated volatility to the BSM pricing framework.
 
 ## Planned Extensions
 GUI for parameter tuning and visualization
+
 Calibration comparison between models
+
 American option support
+
 Local & stochastic volatility models
+
 Greek calculations (Delta, Gamma, Vega...)
 
 ## Academic Foundations
 Black, F., & Scholes, M. (1973). The Pricing of Options and Corporate Liabilities.
+
 Calvet, L. E., & Fisher, A. J. (2004). Forecasting Volatility using MSM models.
+
 Hull, J. C. (2017). Options, Futures, and Other Derivatives.
