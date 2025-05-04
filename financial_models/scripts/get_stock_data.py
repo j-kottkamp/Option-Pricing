@@ -10,7 +10,7 @@ def main():
             "sort": "asc",
             "start": "2024-04-09", # %Y-%m-%d
             "end": "2024-04-26", 
-            "live": True}
+            "live": False}
     
     df, years = getHistData(data)
 
