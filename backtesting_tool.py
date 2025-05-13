@@ -1,4 +1,3 @@
-import yfinance as yf
 import numpy as np
 from matplotlib import pyplot as plt
 import matplotlib.style as style
@@ -7,6 +6,7 @@ import talib as ta
 import pandas as pd
 import json
 import requests
+import datetime
 
 
 def getData(symbol, tf, limit, adj, feed, sort, start):
@@ -20,6 +20,7 @@ def getData(symbol, tf, limit, adj, feed, sort, start):
 
     response = requests.get(url, headers=headers)
     data = json.loads(response.text)
+    print(data)
     
     return data
 
