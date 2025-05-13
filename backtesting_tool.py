@@ -9,13 +9,13 @@ import json
 import requests
 
 
-def getData(symbol, tf, limit, adj, feed, sort):
-    url = f"https://data.alpaca.markets/v2/stocks/bars?symbols={symbol}&timeframe={tf}&limit={limit}&adjustment={adj}&feed={feed}&sort={sort}"
+def getData(symbol, tf, limit, adj, feed, sort, start):
+    url = f"https://data.alpaca.markets/v2/stocks/bars?symbols={symbol}&timeframe={tf}&start={start}&limit={limit}&adjustment={adj}&feed={feed}&sort={sort}"
 
     headers = {
         "accept": "application/json",
-        "APCA-API-KEY-ID": "PKNUIYFSASOKVHTZD66W",
-        "APCA-API-SECRET-KEY": "lkO3kIHVpSgqyh39c2VL47HguKI1BwzkRgt88AXw"
+        "APCA-API-KEY-ID": "PKXMRTCH5WSH1J8PCD7Z",
+        "APCA-API-SECRET-KEY": "3fn2CoozgI9Chgmk9gdAoRIyqOvIE8q34tD7ceF4"
     }
 
     response = requests.get(url, headers=headers)
@@ -78,7 +78,7 @@ def CalculateReturn(df, starting_balance, years):
     
     sys_return = round(((df.Sys_Bal.iloc[-1]/df.Sys_Bal.iloc[0]) - 1) * 100, 2)
     sys_dd = round(((df.Sys_DD / df.Sys_Peak).min()) * 100, 2)
-    sys_in_market = round((df.Long.value_counts().loc[True] / len(df)) * 100)
+    sys_in_market = round((df.Long.value_counts().loc[True] / len(df)) * 100) if df.Long.any() else "0"
     sys_win = df.Sys_Return[df.Sys_Return > 1.0].count()
     sys_loss = df.Sys_Return[df.Sys_Return < 1.0].count()
     sys_winrate = round(sys_win / (sys_win + sys_loss) * 100, 2)
@@ -154,11 +154,12 @@ def main():
     adj = "raw"
     feed = "sip"
     sort = "asc"
+    start = "2025-01-01"
     starting_balance = 10000
     lb = [9, 20, 50, 100]
     
     
-    data = getData(symbol, tf, limit, adj, feed, sort)
+    data = getData(symbol, tf, limit, adj, feed, sort, start)
     df, years = formatData(data ,symbol)
     
     CalculateIndicators(df, lb)
