@@ -9,4 +9,4 @@ data = {"ticker": "SPY",
             "start": "2024-04-20",
             "end": "2024-04-26", 
             "live": False}
-dynamicPrice(100, 100, 0.1, 0.2, 0.05, "call", data)
+dynamicPrice(100, 100, 0.1, 0.2, 0.05, "call", data) 

@@ -1,15 +1,9 @@
 from models.bsm_option_pricing import optionPricing
-import datetime
-
-def calcTime(strike):
-    now = datetime.date.today()
-    strikeDate = datetime.datetime.strptime(strike, "%d.%m.%Y").date()
-    
-    return (strikeDate - now).days
+from utils.calc_time_delta import calcTimeDelta
 
 def main():
     strike = "23.05.2025"
-    delta = calcTime(strike)
+    delta = calcTimeDelta(strike)
     S =  100 # Recent price
     K = 100 # Strike price
     T = delta/252 # Time to maturity (years)
