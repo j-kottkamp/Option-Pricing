@@ -1,5 +1,7 @@
 from models.bsm_option_pricing import optionPricing
 from utils.calc_time_delta import calcTimeDelta
+from models.mc_option_pricing import dynamicPrice
+
 
 def main():
     strike = "23.05.2025"
@@ -9,7 +11,7 @@ def main():
     T = delta/252 # Time to maturity (years)
     σ = 0.0729 # Volatility/ Std. deviation
     r = 0.05 # Risk free rate
-    optionType = "call" # str, "call", "put" or "msm_call"
+    optionType = "bsm_call" # str, "bsm_call", "bsm_put", "bsm_msm_call" or "mc_msm_call"
     data = {"ticker": "AAPL",
             "tf": "15Min",
             "limit": "10000",
@@ -22,14 +24,16 @@ def main():
 
     
     
-    if optionType == "msm_call":
+    if optionType == "bsm_msm_call": # BSM pricing with estimated effective vol.
         price, eff_vol = optionPricing(S, K, T, σ, r, optionType, data)
         print(f"Fair price for MSM-Call option is {price:.4f}")
         print(f"Effective integrated volatility: {eff_vol:.4f}")
-    else:
+    elif optionType == "bsm_call" or "bsm_put": # Standart BSM pricing
         price = optionPricing(S, K, T, σ, r, optionType, data)
         print(f"Fair price for {optionType} option is {price:.4f}")
-        
+    elif optionType == "mc_msm_call": # Monte Carlo simulation of Markov Switching Multifractal valuation
+        price = dynamicPrice(S, K, T, σ, r, optionType, data)
+        print(f"Fair price for {optionType} option is {price:.4f}")
     return price
     
 if __name__ == "__main__":
