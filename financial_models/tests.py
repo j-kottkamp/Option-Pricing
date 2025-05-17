@@ -49,6 +49,7 @@ class MSMModel:
         current_states = np.random.choice([self.m0, self.m1], size=(n_sims, self.k))
         logS = np.log(self.S0) * np.ones(n_sims)
         
+        
         for _ in range(self.n_steps):
             # Generate transitions for all components
             transitions = np.random.rand(n_sims, self.k) < self.gamma
@@ -65,6 +66,8 @@ class MSMModel:
             dW = np.random.normal(0, 1, n_sims)
             log_return = (self.r - 0.5 * sigma_t**2) * self.dt + sigma_t * np.sqrt(self.dt) * dW
             logS += log_return
+            
+            
         
         # Convert to terminal prices
         S_T = np.exp(logS)
@@ -116,11 +119,10 @@ class MSMModel:
 if __name__ == "__main__":
     # Initialize model with realistic parameters
     model = MSMModel(
-        k=4,
+        k=6,
         m0=0.8,
         m1=1.2,
         sigma_base=0.2,
-        gamma=[0.5, 0.25, 0.125, 0.0625],  # Decaying transition probabilities
         S0=100,
         r=0.05,
         T=1,
