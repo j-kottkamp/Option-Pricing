@@ -1,17 +1,46 @@
 from models.bsm_option_pricing import optionPricing
 from utils.calc_time_delta import calcTimeDelta
-from models.mc_option_pricing import dynamicPrice
+from models.mc_option_pricing import MSMModel
 
 
 def main():
+    '''
+    Parameters for option pricing:
+    Required for all:
+    - strike (dd.mm.yyyy): Date of maturity
+    - S (int): Current stock price
+    - K (int): Strike price
+    - sigma (float): Base volatility
+    - r (float): Risk-free interest rate
+    - optionType (str): Type of option (e.g. "call" or "put")
+    - pricingMethod (str): {"bsm": simple Black-Scholes-Merton modell
+                            "mc_msm": Monte Carlo option pricing under the Markov-Switching Multifractal model
+                            
+                            }
+    
+    Required for mc_msm:
+    - k (int): Number of volatility components
+    - m0 (float): Low volatility state value
+    - m1 (float): High volatility state value
+    - dt: Time steps
+    - n: Number of simulations (for optimal performance 10k)
+    '''
     strike = "23.05.2025"
     delta = calcTimeDelta(strike)
-    S =  100 # Recent price
-    K = 100 # Strike price
-    T = delta/252 # Time to maturity (years)
-    σ = 0.0729 # Volatility/ Std. deviation
-    r = 0.05 # Risk free rate
-    optionType = "bsm_call" # str, "bsm_call", "bsm_put", "bsm_msm_call" or "mc_msm_call"
+    print("delts: ", delta)
+    S =  100
+    K = 100
+    T = delta/252
+    print("T: ", T)
+    sigma = 0.0729
+    r = 0.05
+    optionType = "call" # str, "bsm_call", "bsm_put", "bsm_msm_call" or "mc_msm_call"
+    pricingMethod = "bsm"
+    k = 8
+    m0 = 0.8
+    m1 = 1.2
+    dt = 1/252
+    n = 100000
     data = {"ticker": "AAPL",
             "tf": "15Min",
             "limit": "10000",
@@ -22,19 +51,26 @@ def main():
             "end": "2024-04-26",
             "live": False}
 
+    if pricingMethod == "bsm":
+        if optionType == "call" or "put":
+            fairValue = optionPricing(S, K, T, sigma, r, optionType, data)
+            print(f"The fair value of the {optionType} option is: {fairValue:.4f}")
+        else:
+            raise ValueError(f"optionType must be 'call' or 'put'. Currently {optionType}")
     
-    
-    if optionType == "bsm_msm_call": # BSM pricing with estimated effective vol.
-        price, eff_vol = optionPricing(S, K, T, σ, r, optionType, data)
-        print(f"Fair price for MSM-Call option is {price:.4f}")
-        print(f"Effective integrated volatility: {eff_vol:.4f}")
-    elif optionType == "bsm_call" or "bsm_put": # Standart BSM pricing
-        price = optionPricing(S, K, T, σ, r, optionType, data)
-        print(f"Fair price for {optionType} option is {price:.4f}")
-    elif optionType == "mc_msm_call": # Monte Carlo simulation of Markov Switching Multifractal valuation
-        price = dynamicPrice(S, K, T, σ, r, optionType, data)
-        print(f"Fair price for {optionType} option is {price:.4f}")
-    return price
+    elif pricingMethod == "mc_msm":
+        model = MSMModel(
+        k=k,
+        m0=m0,
+        m1=m1,
+        sigma_base=sigma,
+        S0=S,
+        r=r,
+        T=T,
+        dt=dt
+    )
+        fairValue, _ = model.price_option(S, optionType, n_sims=n)
+        print(f"The fair value of the {optionType} option is: {fairValue:.4f}")
     
 if __name__ == "__main__":
     main()

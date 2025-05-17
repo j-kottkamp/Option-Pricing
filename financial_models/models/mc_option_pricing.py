@@ -1,62 +1,130 @@
 import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
-from utils.msm_future_volatility import MSMModel
-from utils.live_stock_data import getHistData
 
-def calculate_dynamic_volatility(returns, levels=4):
-    model = MSMModel(returns, levels=levels)
-    start_params = np.array([-2.0, 2.0] + [0.5] * levels)
-    result = model.fit(start_params=start_params, method="bfgs", maxiter=2000)
-    fitted_params = result.params
-
-    sigma = np.exp(fitted_params[0])
-    m = fitted_params[1]
-    lambdas = 1 / (1 + np.exp(-fitted_params[2:]))
-
-    n = len(returns)
-    states = np.ones((levels, n))
-    for i in range(levels):
-        for t in range(1, n):
-            if np.random.rand() < lambdas[i]:
-                states[i, t] = m if states[i, t-1] == 1 else 1
-            else:
-                states[i, t] = states[i, t-1]
-
-    sigmas_t = sigma * np.sqrt(np.prod(states, axis=0))
-    return sigmas_t
-
-def dynamicPrice(s, K, T, σ, r, optionType, data):
-    df, years = getHistData(data)
-    returns = np.log(df.close / df.close.shift(1)).dropna()
-
-    steps = int(np.ceil(T * 252))
-    dt = T / steps
-    S = np.zeros(steps)
-    S[0] = s
-
-    dynamic_vol = np.zeros(steps)
-    initial_vol = calculate_dynamic_volatility(returns)
-    dynamic_vol[0] = initial_vol[-1]
-
-    normal = np.random.standard_normal(steps)
-
-    for i in range(1, steps):
-        if i == 1:
-            ret = returns.iloc[-1]
+class MSMModel:
+    def __init__(self, k=8, m0=0.8, m1=1.2, gamma=None, sigma_base=0.2, S0=100, r=0.05, T=1, dt=1/252):
+        """
+            k: Number of volatility components.
+            m0: Low volatility state value.
+            m1: High volatility state value.
+            gamma: Transition probabilities for each component.
+            sigma_base: Base volatility level.
+            S0: Initial asset price.
+            r: Risk-free rate.
+            T: Time to maturity (years).
+            dt: Time step size (e.g., daily = 1/252).
+        """
+        self.k = k
+        self.m0 = m0
+        self.m1 = m1
+        self.sigma_base = sigma_base
+        self.S0 = S0
+        self.r = r
+        self.T = T
+        self.dt = dt
+        self.n_steps = int(T / dt)
+        
+        if gamma is None:
+            self.gamma = np.array([0.5 * (4 ** (1 - i)) for i in range(1, k+1)])
         else:
-            ret = np.log(S[i-1] / S[i-2])
+            self.gamma = np.array(gamma)
+        
+        if len(self.gamma) != k:
+            raise ValueError(f"gamma must have length {k}")
 
-        updated_returns = returns._append(pd.Series([ret]), ignore_index=True)
-        vol_series = calculate_dynamic_volatility(updated_returns)
-        dynamic_vol[i] = vol_series[-1]
+    def monte_carlo_simulate(self, n_sims=10000):
+        # S_T (np.array): Terminal asset prices for all simulations.
 
-        S[i] = S[i - 1] * np.exp((r - 0.5 * dynamic_vol[i]**2) * dt + dynamic_vol[i] * np.sqrt(dt) * normal[i])
+        current_states = np.random.choice([self.m0, self.m1], size=(n_sims, self.k))
+        logS = np.log(self.S0) * np.ones(n_sims)
+        
+        
+        for _ in range(self.n_steps):
+            transitions = np.random.rand(n_sims, self.k) < self.gamma
+            current_states = np.where(
+                transitions,
+                self.m1 - current_states + self.m0,  # Swaps m0 <-> m1
+                current_states
+            )
+            product_components = np.prod(current_states, axis=1)
+            sigma_t = self.sigma_base * np.sqrt(product_components)
+            dW = np.random.normal(0, 1, n_sims)
+            log_return = (self.r - 0.5 * sigma_t**2) * self.dt + sigma_t * np.sqrt(self.dt) * dW
+            logS += log_return
+            
+        S_T = np.exp(logS)
+        return S_T
 
-    plt.plot(S)
-    plt.title('Simulierter Verlauf des Preises mit dynamischer Volatilität')
-    plt.xlabel('Tage')
-    plt.ylabel('Preis')
+    def price_option(self, K, option_type='call', n_sims=10000):
+        """
+            K (float): Strike price.
+            option_type (str): 'call' or 'put'.
+            n_sims: Number of simulations. Preferably 100000 for optimal performance results 
+        """
+        S_T = self.monte_carlo_simulate(n_sims)
+        if option_type == 'call':
+            payoffs = np.maximum(S_T - K, 0)
+        elif option_type == 'put':
+            payoffs = np.maximum(K - S_T, 0)
+        else:
+            raise ValueError("option_type must be 'call' or 'put'")
+        discount_factor = np.exp(-self.r * self.T)
+        price = discount_factor * np.mean(payoffs)
+        return price, S_T
+    
+    def simulate_paths(self, n_paths=20):
+        current_states = np.random.choice([self.m0, self.m1], size=(n_paths, self.k))
+        logS_paths = np.log(self.S0) * np.ones((self.n_steps + 1, n_paths))
+        
+        for t in range(1, self.n_steps + 1):
+            transitions = np.random.rand(n_paths, self.k) < self.gamma
+            current_states = np.where(
+                transitions,
+                self.m1 - current_states + self.m0,
+                current_states
+            )
+            product_components = np.prod(current_states, axis=1)
+            sigma_t = self.sigma_base * np.sqrt(product_components)
+            dW = np.random.normal(0, 1, n_paths)
+            log_return = (self.r - 0.5 * sigma_t**2) * self.dt + sigma_t * np.sqrt(self.dt) * dW
+            logS_paths[t] = logS_paths[t - 1] + log_return
+        
+        S_paths = np.exp(logS_paths)
+        return S_paths
+
+if __name__ == "__main__":
+    '''
+    Initialize without modularity directly from this file 
+    for visualization of generated movements
+    '''
+    model = MSMModel(
+        k=8,
+        m0=0.8,
+        m1=1.2,
+        sigma_base=0.0729,
+        S0=100,
+        r=0.05,
+        T=6/252,
+        dt=1/252
+    )
+    
+    call_price, S_T = model.price_option(K=100, option_type='call', n_sims=100000)
+    
+    simulated_paths = model.simulate_paths(n_paths=1)
+    time_grid = np.linspace(0, model.T, model.n_steps + 1)
+    plt.figure(figsize=(12, 6))
+    for i in range(simulated_paths.shape[1]):
+        plt.plot(time_grid, simulated_paths[:, i], alpha=0.7)
+    plt.title("Simulated Asset Price Paths under MSM Model")
+    plt.xlabel("Time (Years)")
+    plt.ylabel("Asset Price")
+    plt.grid(True)
+    plt.tight_layout()
     plt.show()
-
-    return S
+    
+    plt.hist(S_T, bins=100)
+    plt.title("Histogramm der simulierten Endpreise S_T")
+    plt.xlabel("S_T")
+    plt.ylabel("Häufigkeit")
+    plt.show()
+    print(f"European Call Option Price: {call_price:.2f}")

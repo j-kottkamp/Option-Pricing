@@ -119,7 +119,7 @@ class MSMModel:
 if __name__ == "__main__":
     # Initialize model with realistic parameters
     model = MSMModel(
-        k=6,
+        k=8,
         m0=0.8,
         m1=1.2,
         sigma_base=0.2,

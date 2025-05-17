@@ -1,5 +1,4 @@
 import numpy as np
-import matplotlib.pyplot as plt
 import math
 from utils.msm_future_volatility import get_future_volatility
 
@@ -14,14 +13,13 @@ def optionPricing(S, K, T, σ, r, optionType, data):
     
     if optionType == "call":
         return S * standard_normal_cdf(d1) - K * np.exp(-r * T) * standard_normal_cdf(d2)
+    
     elif optionType == "put":
         return K * np.exp(-r * T) * standard_normal_cdf(-d2) - S * standard_normal_cdf(-d1)
+    
     elif optionType == "msm_call":
         d1, d2, effective_vol = get_future_volatility(S, K, T, σ, r, optionType, data)
-        
         return (S * standard_normal_cdf(d1) - K * np.exp(-r * T) * standard_normal_cdf(d2)), effective_vol
-    else:
-        raise ValueError("option_type must be 'call' or 'put'")
 
 def crossCheck(C, P, S, K, r, T):
     lhs = C - P
