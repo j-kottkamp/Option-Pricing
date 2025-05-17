@@ -20,8 +20,3 @@ def optionPricing(S, K, T, σ, r, optionType, data):
     elif optionType == "msm_call":
         d1, d2, effective_vol = get_future_volatility(S, K, T, σ, r, optionType, data)
         return (S * standard_normal_cdf(d1) - K * np.exp(-r * T) * standard_normal_cdf(d2)), effective_vol
-
-def crossCheck(C, P, S, K, r, T):
-    lhs = C - P
-    rhs = S[0] - K * np.exp(-r * T)
-    return np.isclose(lhs, rhs, atol=1e-4)
