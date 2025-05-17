@@ -24,8 +24,8 @@ def getHistData(data):
 
     headers = {
         "accept": "application/json",
-        "APCA-API-KEY-ID": "PKXMRTCH5WSH1J8PCD7Z",
-        "APCA-API-SECRET-KEY": "3fn2CoozgI9Chgmk9gdAoRIyqOvIE8q34tD7ceF4"
+        "APCA-API-KEY-ID": api_key,
+        "APCA-API-SECRET-KEY": secret_key
     }
 
     search = url1 if not live else url2
