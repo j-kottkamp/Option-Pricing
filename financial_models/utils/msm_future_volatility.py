@@ -5,7 +5,7 @@ import yfinance as yf
 from scipy.stats import norm
 import statsmodels.api as sm
 from statsmodels.base.model import GenericLikelihoodModel
-from utils.live_stock_data import getHistData
+from utils.live_stock_data import getStockData
 
 
 
