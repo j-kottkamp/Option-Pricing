@@ -56,7 +56,7 @@ def main():
                              r=r, 
                              sigma=sigma, 
                              optionType=optionType)
-            fairValue = model.priceOption(optionType)
+            fairValue = model.priceOption()
             print("--- Black-Scholes-Merton ---")
             print(f"The fair value of the {optionType} option is: {fairValue:.4f}")
         

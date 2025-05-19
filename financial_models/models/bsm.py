@@ -1,5 +1,4 @@
 import numpy as np
-from utils.msm_future_volatility import get_future_volatility
 from utils.std_normal_cdf import standard_normal_cdf
 
 class BSMModel:
@@ -21,14 +20,9 @@ class BSMModel:
         self.d1 = d1
         self.d2 = d2
 
-    def priceOption(self, optionType):
+    def priceOption(self):
         self.calcd()
-        if optionType == 'call':
+        if self.optionType == 'call':
             return self.S * standard_normal_cdf(self.d1) - self.K * np.exp(-self.r * self.T) * standard_normal_cdf(self.d2)
-        elif optionType == 'put':
+        elif self.optionType == 'put':
             return self.K * np.exp(-self.r * self.T) * standard_normal_cdf(-self.d2) - self.S * standard_normal_cdf(-self.d1)
-        
-        
-        # elif optionType == "msm_call":
-        #     d1, d2, effective_vol = get_future_volatility(S, K, T, σ, r, optionType, data)
-        #     return (S * standard_normal_cdf(d1) - K * np.exp(-r * T) * standard_normal_cdf(d2)), effective_vol

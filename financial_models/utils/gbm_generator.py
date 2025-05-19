@@ -12,9 +12,9 @@ def geometricBrownianMotion(S0=100, μ=0.07, σ=0.2, T=1, N=252):
         S[t + 1] = S[t] * np.exp((μ - 0.5 * σ**2) * dt + σ * dW)
         
     plt.plot(S)
-    plt.title('Simulierter Verlauf des Preises')
-    plt.xlabel('Tage')
-    plt.ylabel('Preis')
+    plt.title('Simulated path')
+    plt.xlabel('Days')
+    plt.ylabel('Price')
     plt.show()
     
     return S
