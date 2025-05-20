@@ -1,6 +1,6 @@
 import datetime
 
-def calcTimeDelta(strike):
+def calc_time_delta(strike):
     now = datetime.date.today()
     strikeDate = datetime.datetime.strptime(strike, "%d.%m.%Y").date()
     

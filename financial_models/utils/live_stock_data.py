@@ -4,7 +4,7 @@ import datetime
 import os
 from dotenv import load_dotenv
 
-def getStockData(data):
+def get_stock_data(data):
     dotenv_path = os.path.join(os.path.dirname(__file__), '..', '..', '.env')
     load_dotenv(dotenv_path=dotenv_path)
     api_key = os.getenv("API_KEY")
@@ -32,9 +32,9 @@ def getStockData(data):
     response = requests.get(search, headers=headers)
     data = json.loads(response.text)
     
-    return formatData(data, symbol)
+    return format_data(data, symbol)
 
-def formatData(data, symbol):
+def format_data(data, symbol):
     df = pd.DataFrame()
     df["close"] = [bar["c"] for bar in data["bars"][symbol]]
     df["high"] = [bar["h"] for bar in data["bars"][symbol]]

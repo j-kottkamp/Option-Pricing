@@ -1,4 +1,4 @@
-from .gbm_generator import geometricBrownianMotion
-from .live_stock_data import getStockData
-from .calc_time_delta import calcTimeDelta
+from .gbm_generator import geometric_brownian_motion
+from .live_stock_data import get_stock_data
+from .calc_time_delta import calc_time_delta
 from .std_normal_cdf import standard_normal_cdf

@@ -24,7 +24,7 @@ def main():
     - n: Number of simulations (for optimal performance 10k)
     '''
     strike = "23.05.2025"
-    delta = calcTimeDelta(strike)
+    delta = calc_time_delta(strike)
     S =  100
     K = 100
     T = delta/252

@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-def geometricBrownianMotion(S0=100, μ=0.07, σ=0.2, T=1, N=252):
+def geometric_brownian_motion(S0=100, μ=0.07, σ=0.2, T=1, N=252):
     dt = T / N  # Time step size
     S = np.zeros(N + 1)
     S[0] = S0

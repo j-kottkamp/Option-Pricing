@@ -1,4 +1,4 @@
-from utils.live_stock_data import getStockData
+from utils.live_stock_data import get_stock_data
 
 def main():
     # Returns dataframe and count of years for plotting and metrics calculation, respectively.
@@ -12,7 +12,7 @@ def main():
             "end": "2024-04-26", 
             "live": False}
     
-    df, years = getStockData(data)
+    df, years = get_stock_data(data)
 
 if __name__ == "__main__":
     main()

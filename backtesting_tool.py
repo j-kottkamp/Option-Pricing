@@ -7,15 +7,22 @@ import pandas as pd
 import json
 import requests
 import datetime
+import os
+from dotenv import load_dotenv
 
 
-def getData(symbol, tf, limit, adj, feed, sort, start):
+def get_data(symbol, tf, limit, adj, feed, sort, start):
+    dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
+    load_dotenv(dotenv_path=dotenv_path)
+    api_key = os.getenv("API_KEY")
+    secret_key = os.getenv("API_SECRET_KEY")
+    
     url = f"https://data.alpaca.markets/v2/stocks/bars?symbols={symbol}&timeframe={tf}&start={start}&limit={limit}&adjustment={adj}&feed={feed}&sort={sort}"
 
     headers = {
         "accept": "application/json",
-        "APCA-API-KEY-ID": "PKXMRTCH5WSH1J8PCD7Z",
-        "APCA-API-SECRET-KEY": "3fn2CoozgI9Chgmk9gdAoRIyqOvIE8q34tD7ceF4"
+        "APCA-API-KEY-ID": api_key,
+        "APCA-API-SECRET-KEY": secret_key
     }
 
     response = requests.get(url, headers=headers)
@@ -24,7 +31,7 @@ def getData(symbol, tf, limit, adj, feed, sort, start):
     
     return data
 
-def formatData(data, symbol):
+def format_data(data, symbol):
     df = pd.DataFrame()
     df["close"] = [bar["c"] for bar in data["bars"][symbol]]
     df["high"] = [bar["h"] for bar in data["bars"][symbol]]
@@ -51,16 +58,17 @@ def formatData(data, symbol):
 
 
     
-def CalculateIndicators(df, lb):
+def calculate_indicators(df, lb):
     df['rsi'] = ta.RSI(df.close.values.flatten(), timeperiod = 14)
     for lb in lb:
         df[f'ema_{lb}'] = ta.EMA(df.close.values.flatten(), timeperiod = lb)
     return df
 
-def SetStrategy(df):
+def set_strategy(df):
+    # Set strategy here ->
     df["Long"] = np.where((df.rsi < 70) & (df.rsi > 30), True, False)
     
-def CalculateReturn(df, starting_balance, years):
+def calculate_return(df, starting_balance, years):
     # Benchmark Performance
     df['Return'] = df.close / df.close.shift(1)
     df.Return.iat[0] = 1
@@ -113,7 +121,7 @@ def CalculateReturn(df, starting_balance, years):
     
     
   
-def PlotReturn(df):
+def plot_return(df):
     import matplotlib.pyplot as plt
     from matplotlib import style
     
@@ -160,16 +168,16 @@ def main():
     lb = [9, 20, 50, 100]
     
     
-    data = getData(symbol, tf, limit, adj, feed, sort, start)
-    df, years = formatData(data ,symbol)
+    data = get_data(symbol, tf, limit, adj, feed, sort, start)
+    df, years = format_data(data ,symbol)
     
-    CalculateIndicators(df, lb)
+    calculate_indicators(df, lb)
     
-    SetStrategy(df)
+    set_strategy(df)
     
-    CalculateReturn(df, starting_balance, years)
+    calculate_return(df, starting_balance, years)
     
-    PlotReturn(df)
+    plot_return(df)
     
 
 
