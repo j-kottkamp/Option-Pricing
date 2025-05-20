@@ -3,29 +3,50 @@ from yahooquery import Ticker
 from datetime import datetime
 import numpy as np
 
-def get_option_matrix(symbol="NVDA", option_type="call"):
-    t = Ticker(symbol)
-    spot = t.price[symbol]['regularMarketPrice']
-    chain = t.option_chain
-    now = pd.Timestamp.now()
+class OptionData:
+    def __init__(self, ticker="AAPL", optionType="call", data="impliedVolatility"):
+        self.ticker = ticker
+        self.chain = Ticker(self.ticker).option_chain
+        self.optionType = optionType
+        self.data = data
+        self.spotPrice = None
+        self.now = None
+        
+    def format_df(self):
+        if self.optionType == "call":
+            self.chain = self.chain.xs("calls", level=2).reset_index()
+        elif self.optionType == "put":
+            self.chain = self.chain.xs("puts", level=2).reset_index()
+        else:
+            raise ValueError("Invalid option type. Please use 'call' or 'put'")
+        
+        spot = Ticker(self.ticker).price[self.ticker]['regularMarketPrice']
+        now = pd.Timestamp.now()
+        
+        self.chain["timeToMaturity"] = ((self.chain["expiration"] - now).dt.total_seconds() / (365 * 24 * 3600)).round(2)
+        self.chain["moneyness"] = (self.chain["strike"] / spot).round(2)
+        
+        self.chain["expirations"] = pd.to_datetime(self.chain["expiration"])
+        
+        params = ["strike", "lastPrice", "change", "percentChange", "volume", "openInterest", "bid", "ask", "contractSize", "impliedVolatility"]
+        if self.data in params:  
+            self.chain[self.data] = self.chain[self.data].round(2)
+        
+        
+    def create_option_matrix(self, matrixParams=["timeToMaturity", "moneyness", "impliedVolatility"]):
+        self.format_df()
+            
+        optionMatrix = self.chain.pivot_table(
+            index=matrixParams[0],
+            columns=matrixParams[1],
+            values=matrixParams[2]
+        )
+        return optionMatrix
 
-    calls = chain.xs("calls", level=2).reset_index()
-    puts = chain.xs("puts", level=2).reset_index()
+    def get_option_data(self):
+        self.format_df()
+        return self.chain[self.data]
     
-    calls["expirations"] = pd.to_datetime(calls["expiration"])
-    
-    calls["timeToMaturity"] = ((calls["expiration"] - now).dt.total_seconds() / (365 * 24 * 3600)).round(2)
-    calls["moneyness"] = (calls["strike"] / spot).round(2)
-    calls["strike"] = calls["strike"].round(2)
-    
-    optionMatrix = calls.pivot_table(
-        index="timeToMaturity",
-        columns="moneyness",
-        values="lastPrice"
-    )
-    return optionMatrix
-    
-
-if __name__ == "__main__":
-    optionMatrix = get_option_matrix(symbol="NVDA", option_type="call")
-    print(optionMatrix)
+    def return_full_data(self):
+        self.format_df()
+        return self.chain
