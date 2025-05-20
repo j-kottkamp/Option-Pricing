@@ -1,6 +1,6 @@
 from models.bsm import BSMModel
 from models.msm import MSMModel
-from utils.calc_time_delta import calcTimeDelta
+from utils.calc_time_delta import calc_time_delta
 
 def main():
     '''
