@@ -1,14 +1,14 @@
 from imports import np, plt
 
 class MSMModel:
-    def __init__(self, k=8, m0=0.8, m1=1.2, gamma=None, sigma_base=0.2, S0=100, K=100, r=0.05, T=1, dt=1/252):
+    def __init__(self, k=8, m0=0.8, m1=1.2, gamma=None, sigma_base=0.2, S=100, K=100, r=0.05, T=1, dt=1/252):
         """
             k: Number of volatility components.
             m0: Low volatility state value.
             m1: High volatility state value.
             gamma: Transition probabilities for each component.
             sigma_base: Base volatility level.
-            S0: Initial asset price.
+            S: Initial asset price.
             r: Risk-free rate.
             T: Time to maturity (years).
             dt: Time step size (e.g., daily = 1/252).
@@ -17,7 +17,7 @@ class MSMModel:
         self.m0 = m0
         self.m1 = m1
         self.sigma_base = sigma_base
-        self.S0 = S0
+        self.S = S
         self.K = K
         self.r = r
         self.T = T
@@ -36,7 +36,7 @@ class MSMModel:
         # S_T (np.array): Terminal asset prices for all simulations.
 
         current_states = np.random.choice([self.m0, self.m1], size=(n_sims, self.k))
-        logS = np.log(self.S0) * np.ones(n_sims)
+        logS = np.log(self.S) * np.ones(n_sims)
         
         
         for _ in range(self.n_steps):
@@ -74,7 +74,7 @@ class MSMModel:
     
     def simulate_paths(self, n_paths=20):
         current_states = np.random.choice([self.m0, self.m1], size=(n_paths, self.k))
-        logS_paths = np.log(self.S0) * np.ones((self.n_steps + 1, n_paths))
+        logS_paths = np.log(self.S) * np.ones((self.n_steps + 1, n_paths))
         
         for t in range(1, self.n_steps + 1):
             transitions = np.random.rand(n_paths, self.k) < self.gamma
@@ -102,13 +102,13 @@ if __name__ == "__main__":
         m0=0.8,
         m1=1.2,
         sigma_base=0.0729,
-        S0=100,
+        S=100,
         r=0.05,
         T=252/252,
         dt=1/252
     )
     
-    call_price, S_T = model.price_option(K=100, option_type='call', n_sims=100000)
+    call_price, S_T = model.price_option(option_type='call', n_sims=100000)
     
     simulated_paths = model.simulate_paths(n_paths=1)
     time_grid = np.linspace(0, model.T, model.n_steps + 1)

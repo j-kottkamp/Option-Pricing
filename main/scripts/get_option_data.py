@@ -11,11 +11,12 @@ def main():
     data = "Full" # List above (str), "Full" for full dataframe
     createMatrix = True # Requieres 3 Parameters
     matrixParams = ["timeToMaturity", "moneyness", "impliedVolatility"] # list (str), [index, columns, values]
+    full = False # (bool), False returns densest submatrix
     
     option = OptionData(ticker, optionType, data)
     if data in available:
         if createMatrix:
-            print(option.create_option_matrix(matrixParams))
+            print(option.create_option_matrix(matrixParams, full))
         else:
             if data == "Full":
                 print(option.return_full_data())

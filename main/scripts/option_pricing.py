@@ -30,8 +30,8 @@ def main():
     T = delta/252
     sigma = 0.0729
     r = 0.05
-    optionType = "call" # str, "call" or "put"
-    pricingMethod = "bsm"
+    optionType = "put" # str, "call" or "put"
+    pricingMethod = "msm" # "bsm" or "msm"
     k = 8
     m0 = 0.8
     m1 = 1.2
@@ -59,7 +59,7 @@ def main():
             print("--- Black-Scholes-Merton ---")
             print(f"The fair value of the {optionType} option is: {fairValue:.4f}")
         
-        elif pricingMethod == "mc_msm":
+        elif pricingMethod == "msm":
             model = MSMModel(
             k=k,
             m0=m0,
@@ -70,12 +70,12 @@ def main():
             T=T,
             dt=dt
         )
-            fairValue, _ = model.price_option(S, optionType, n_sims=n)
+            fairValue, _ = model.price_option(option_type=optionType, n_sims=n)
             print("--- Markov-Switching Multifractal ---")
             print(f"The fair value of the {optionType} option is: {fairValue:.4f}")
             
         else:
-            raise ValueError(f"pricingMethod must be 'bsm' or 'mc_msm'. Currently {pricingMethod}")
+            raise ValueError(f"pricingMethod must be 'bsm' or 'msm'. Currently {pricingMethod}")
     else:
         raise ValueError(f"optionType must be 'call' or 'put'. Currently {optionType}")
 

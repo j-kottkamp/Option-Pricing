@@ -12,6 +12,8 @@ def main():
         model_type = module.option_pricing_default()
         if model_type == "Black-Scholes-Merton":
             module.bsm_config()
+        elif model_type == "Markov-Switching Multifractal":
+            module.msm_config()
 
 if __name__ == "__main__":
     main()

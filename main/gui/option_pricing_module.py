@@ -1,5 +1,6 @@
 from imports import st, pd, plt, np, sns
 from models.bsm import BSMModel
+from models.msm import MSMModel
 from utils.create_heatmap import create_heatmap_matrix
 
 def get_range_input(param_name: str):
@@ -62,8 +63,8 @@ class OptionPricingConfig:
             
             
             model = BSMModel(S=self.S, K=self.K, T=self.T, r=self.r, sigma=self.sigma)
-            callPrice = model.price_option(optionType="call")
-            putPrice = model.price_option(optionType="put")
+            callPrice = model.price_option(option_type="call")
+            putPrice = model.price_option(option_type="put")
             
             self.topCall = callPrice
             self.topPut = putPrice
@@ -71,6 +72,28 @@ class OptionPricingConfig:
             self.show_option_prices()
             
             self.heatmap_config()
+            
+    def msm_config(self):
+        if self.model_type == "Markov-Switching Multifractal":
+            st.title("Markov-Switching Multifractal Model")
+            df = pd.DataFrame({
+                "Spot Price": [self.S],
+                "Strike Price": [self.K],
+                "Risk-free Interest Rate": [self.r],
+                "Volatility": [self.sigma],
+                "Time to Maturity": [self.T]
+            })
+            st.table(df)
+            
+            
+            model = MSMModel(S=self.S, K=self.K, T=self.T, r=self.r, sigma_base=self.sigma)
+            callPrice, _ = model.price_option(option_type="call")
+            putPrice, _ = model.price_option(option_type="put")
+            
+            self.topCall = callPrice
+            self.topPut = putPrice
+            
+            self.show_option_prices()
                
     def show_option_prices(self):
         callBox, putBox = st.columns(2)

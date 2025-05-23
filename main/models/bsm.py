@@ -1,3 +1,4 @@
+
 from imports import np
 from utils.std_normal_cdf import standard_normal_cdf
 
@@ -18,7 +19,13 @@ class BSMModel:
         self.d1 = d1
         self.d2 = d2
 
-    def price_option(self, optionType): 
+    def price_option(self, optionType):
+        if self.T <= 0:
+            if optionType == 'call':
+                return max(0, self.S - self.K)
+            elif optionType == 'put':
+                return max(0, self.K - self.S)
+            
         self.calc_d()
         if optionType == 'call':
             return self.S * standard_normal_cdf(self.d1) - self.K * np.exp(-self.r * self.T) * standard_normal_cdf(self.d2)
