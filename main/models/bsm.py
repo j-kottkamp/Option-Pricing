@@ -19,16 +19,16 @@ class BSMModel:
         self.d1 = d1
         self.d2 = d2
 
-    def price_option(self, optionType):
+    def price_option(self, option_type):
         if self.T <= 0:
-            if optionType == 'call':
+            if option_type == 'call':
                 return max(0, self.S - self.K)
-            elif optionType == 'put':
+            elif option_type == 'put':
                 return max(0, self.K - self.S)
             
         self.calc_d()
-        if optionType == 'call':
+        if option_type == 'call':
             return self.S * standard_normal_cdf(self.d1) - self.K * np.exp(-self.r * self.T) * standard_normal_cdf(self.d2)
-        elif optionType == 'put':
+        elif option_type == 'put':
             return self.K * np.exp(-self.r * self.T) * standard_normal_cdf(-self.d2) - self.S * standard_normal_cdf(-self.d1)
         
