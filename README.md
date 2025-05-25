@@ -7,28 +7,22 @@ Black-Scholes-Merton (BSM) model
 
 Markov-Switching Multifractal (MSM) model
 
-Hybrid approaches, e.g. BSM with MSM-based volatility
-
 The system is built to analyze and simulate option prices under both constant and time-varying volatility regimes, supporting both academic exploration and real-world prototyping.
 
 ## Supported Models
-Black-Scholes-Merton (BSM)
+### Black-Scholes-Merton (BSM)
 Standard European option pricing with constant volatility.
 
-MSM (Markov-Switching Multifractal)
+### [Markov-Switching Multifractal (MSM)](docs/msm.md)
 Volatility evolves via discrete regimes, switching over time. Simulates heteroskedastic returns and long-memory volatility.
 
-Hybrid: BSM + MSM Volatility
-Applies MSM-generated volatility to the BSM pricing framework.
+## Graphical User Interface - WiP!
+Direct usage of most of the repositorys features via a functual user Interface.
 
 ## Planned Extensions
-GUI for parameter tuning and visualization
-
 Calibration comparison between models
 
 American option support
-
-Local & stochastic volatility models
 
 Greek calculations (Delta, Gamma, Vega...)
 
