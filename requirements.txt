@@ -1,7 +1,18 @@
-pip install numpy pandas matplotlib scipy statsmodels
+pip install numpy pandas matplotlib statsmodels streamlit seaborn yahooquery requests json datetime dotenv
 
 numpy,
 pandas,
 matplotlib,
-scipy,
-statsmodels
+statsmodels,
+streamlit,
+seaborn,
+yahooquery,
+requests,
+json,
+datetime,
+dotenv
+
+
+
+
+
