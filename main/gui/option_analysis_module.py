@@ -7,22 +7,22 @@ class OptionAnalysisConfig:
         
     def option_analysis_default(self):
         option_type = st.sidebar.selectbox(
-            "Select Option Type",
+            "Select option type",
             ("call", "put")
         )
         ticker = st.sidebar.text_input(
-            "Enter Ticker Symbol",
+            "Enter ticker symbol",
             value="AAPL"
         )
         all = st.sidebar.checkbox(
-            "Show Full Data?"
+            "Show full data?"
         )
         
         model = OptionData(ticker=ticker, option_type=option_type)
         
         if all != True:
             data = st.sidebar.selectbox(
-                "Select Data Type",
+                "Select data",
                 ('contractSymbol', 'strike', 'currency', 'lastPrice', 'change',
                 'percentChange', 'volume', 'openInterest', 'bid', 'ask', 'contractSize',
                 'lastTradeDate', 'impliedVolatility', 'inTheMoney', 'timeToMaturity', 'moneyness', 'expirations')
