@@ -2,14 +2,14 @@ from utils.live_option_data import OptionData
 
 def main():
     # Available data is:
-    available = ['all', 'contractSymbol', 'strike', 'currency', 'lastPrice', 'change',
+    available = ['all', 'strike', 'currency', 'lastPrice', 'change',
        'percentChange', 'volume', 'openInterest', 'bid', 'ask', 'contractSize',
        'lastTradeDate', 'impliedVolatility', 'inTheMoney', 'timeToMaturity', 'moneyness', 'expirations']
     
-    ticker = "NVDA"
-    option_type = "call"
-    data = "all" # List above (str), "all" for full dataframe
-    create_matrix = True # Requieres 3 Parameters
+    ticker = "NVDA" # Ticker Symbol (e.g. "AAPL", "MSFT")
+    option_type = "call" # "call" or "put"
+    data = "timeToMaturity" # List above (str), "all" for full dataframe
+    create_matrix = False # (bool) Requieres 3 Parameters ->
     matrix_params = ["timeToMaturity", "moneyness", "impliedVolatility"] # list (str), [index, columns, values]
     full = True # (bool), False returns densest submatrix
     

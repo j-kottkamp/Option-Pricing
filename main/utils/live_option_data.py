@@ -15,6 +15,8 @@ class OptionData:
         else:
             raise ValueError("Invalid option type. Please use 'call' or 'put'")
         
+        self.chain = self.chain.set_index("contractSymbol")
+        
         spot = Ticker(self.ticker).price[self.ticker]['regularMarketPrice']
         now = pd.Timestamp.now()
         

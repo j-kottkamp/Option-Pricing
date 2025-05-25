@@ -23,11 +23,11 @@ def main():
     - dt: Time steps
     - n: Number of simulations (for optimal performance 10k)
     '''
-    strike = "23.06.2025"
+    strike = "23.06.2025" # %d.%m.%Y
     delta = calc_time_delta(strike)
     S =  100
     K = 100
-    T = delta/252
+    T = delta/252 # Use "delta/252" for Dates else (float) 
     sigma = 0.0729
     r = 0.05
     optionType = "put" # str, "call" or "put"

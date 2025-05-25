@@ -1,7 +1,8 @@
-from imports import st, pd, plt, np, sns
+from imports import st, pd, plt, np, sns, datetime
 from models.bsm import BSMModel
 from models.msm import MSMModel
 from utils.create_heatmap import create_heatmap_matrix
+from utils.calc_time_delta import calc_time_delta
 
 def get_range_input(param_name: str):
         if param_name == "Volatility (σ)":
@@ -37,7 +38,6 @@ class OptionPricingConfig:
         )
         sidebar_default = {"S": ("Current asset price", 0.0, 100.0),
                       "K": ("Strike price", 0.0, 100.0),
-                      "T": ("Time to maturity in years", 0.0, 1.0),
                       "r": ("Risk-free interest rate", 0.0, 0.05),
                       "sigma": ("Volatility (σ)", 0.0, 0.2)}
         
@@ -46,6 +46,27 @@ class OptionPricingConfig:
             description,
             min_value=min_val, value=default_val
         ))
+            
+        date = st.sidebar.checkbox(
+            "Use (float) for T?"
+        )
+        
+        if date:
+            self.T = st.sidebar.number_input(
+                "Time to maturity in years",
+                min_value=0.0, value=1.0
+            )
+            
+        else:
+            strike = st.sidebar.date_input(
+                "Select the date of expiration",
+                value=datetime.date.today() + datetime.timedelta(days=30)
+            )
+            strike = strike.strftime("%d.%m.%Y")
+
+            delta = calc_time_delta(strike)
+            self.T = delta/252
+            
         
         return self.model_type
          
