@@ -18,7 +18,10 @@ class OptionAnalysisConfig:
             "Show full data?"
         )
         
-        model = OptionData(ticker=ticker, option_type=option_type)
+        try:
+            model = OptionData(ticker=ticker, option_type=option_type)
+        except:
+            st.error("Please enter a valid ticker symbol. E.g., AAPL")
         
         if all != True:
             data = st.sidebar.selectbox(

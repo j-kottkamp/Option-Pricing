@@ -6,4 +6,4 @@
 - The model is designed to capture the complex dynamics of financial markets, including the presence of multiple regimes across different scales.
 
 ## Derivation
-Mandelbrot, Fisher and Calvet (1997) 
+Mandelbrot, Fisher and Calvet (1997)

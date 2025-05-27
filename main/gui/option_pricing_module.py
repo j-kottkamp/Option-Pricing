@@ -181,49 +181,53 @@ class OptionPricingConfig:
     
     def heatmap_config(self):
         st.sidebar.markdown("## Interactive Heatmap")
-        params_x = st.sidebar.selectbox(
-            "Choose heatmap parameter (index):",
-            ["Spot Price", "Strike Price", "Volatility (σ)", "Time to Maturity", "Risk-Free Rate"],
-        )
-        params_y = st.sidebar.selectbox(
-            "Choose heatmap parameter (columns):",
-            ["Volatility (σ)", "Strike Price", "Spot Price", "Time to Maturity", "Risk-Free Rate"],
-        )
         
-        st.sidebar.markdown("### Heatmap Parameters")
+        try: 
+            params_x = st.sidebar.selectbox(
+                "Choose heatmap parameter (index):",
+                ["Spot Price", "Strike Price", "Volatility (σ)", "Time to Maturity", "Risk-Free Rate"],
+            )
+            params_y = st.sidebar.selectbox(
+                "Choose heatmap parameter (columns):",
+                ["Volatility (σ)", "Strike Price", "Spot Price", "Time to Maturity", "Risk-Free Rate"],
+            )
+            
+            st.sidebar.markdown("### Heatmap Parameters")
 
-        x_min, x_max = get_range_input(params_x)
-        y_min, y_max = get_range_input(params_y)
-        
-        matrices, x, y = create_heatmap_matrix(self.S, self.K, self.T, self.r, self.sigma, params_x, params_y, x_min, x_max, y_min, y_max)
+            x_min, x_max = get_range_input(params_x)
+            y_min, y_max = get_range_input(params_y)
+            
+            matrices, x, y = create_heatmap_matrix(self.S, self.K, self.T, self.r, self.sigma, params_x, params_y, x_min, x_max, y_min, y_max)
 
-        heatmap_call, heatmap_put = st.columns(2)
-        
-        with heatmap_call:
-            fig, ax = plt.subplots(figsize=(8, 6))
-            sns.heatmap(matrices[0], 
-                        xticklabels=np.round(x, 2), 
-                        yticklabels=np.round(y, 2), 
-                        cmap="YlOrRd", 
-                        annot=True, 
-                        ax=ax)
-            ax.set_xlabel(params_x)
-            ax.set_ylabel(params_y)
-            ax.set_title("CALL Heatmap")
-            st.pyplot(fig)
-        
-        with heatmap_put:
-            fig, ax = plt.subplots(figsize=(8, 6))
-            sns.heatmap(matrices[1], 
-                        xticklabels=np.round(x, 2), 
-                        yticklabels=np.round(y, 2), 
-                        cmap="YlOrRd", 
-                        annot=True, 
-                        ax=ax)
-            ax.set_xlabel(params_x)
-            ax.set_ylabel(params_y)
-            ax.set_title("PUT Heatmap")
-            st.pyplot(fig)
+            heatmap_call, heatmap_put = st.columns(2)
+            
+            with heatmap_call:
+                fig, ax = plt.subplots(figsize=(8, 6))
+                sns.heatmap(matrices[0], 
+                            xticklabels=np.round(x, 2), 
+                            yticklabels=np.round(y, 2), 
+                            cmap="YlOrRd", 
+                            annot=True, 
+                            ax=ax)
+                ax.set_xlabel(params_x)
+                ax.set_ylabel(params_y)
+                ax.set_title("CALL Heatmap")
+                st.pyplot(fig)
+            
+            with heatmap_put:
+                fig, ax = plt.subplots(figsize=(8, 6))
+                sns.heatmap(matrices[1], 
+                            xticklabels=np.round(x, 2), 
+                            yticklabels=np.round(y, 2), 
+                            cmap="YlOrRd", 
+                            annot=True, 
+                            ax=ax)
+                ax.set_xlabel(params_x)
+                ax.set_ylabel(params_y)
+                ax.set_title("PUT Heatmap")
+                st.pyplot(fig)
+        except:
+            st.error("Please select two distinct parameters for the heatmap")
 
                 
             

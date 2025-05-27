@@ -11,6 +11,8 @@ import json
 import datetime
 from dotenv import load_dotenv
 import os
+import inspect
+
 
 __all__ = [
     'np',
@@ -23,6 +25,7 @@ __all__ = [
     'math',
     'json',
     'Ticker',
+    'inspect',
     'requests',
     'datetime',
     'load_dotenv',

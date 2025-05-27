@@ -1,13 +1,28 @@
-from imports import pd, Ticker, np
+from imports import pd, Ticker, np, inspect, st
 class OptionData:
     def __init__(self, ticker="AAPL", option_type="call"):
-        self.ticker = ticker
-        self.chain = Ticker(self.ticker).option_chain
+        self.ticker = ticker.upper()
         self.option_type = option_type
+        self.chain = None
         self.spot_price = None
         self.now = None
         
     def format_df(self):
+        try:
+            self.chain = Ticker(self.ticker).option_chain
+            spot = Ticker(self.ticker).price[self.ticker]['regularMarketPrice']
+        except Exception as e:
+            msg = f"Invalid response for ticker '{self.ticker}'. Using fallback 'AAPL'."
+            try:
+                st.error(msg)
+            except: 
+                raise ValueError(msg)
+            
+            # fallback default values
+            self.chain = Ticker("AAPL").option_chain
+            spot = Ticker("AAPL").price["AAPL"]['regularMarketPrice']
+            
+        
         if self.option_type == "call":
             self.chain = self.chain.xs("calls", level=2).reset_index()
         elif self.option_type == "put":
@@ -15,11 +30,10 @@ class OptionData:
         else:
             raise ValueError("Invalid option type. Please use 'call' or 'put'")
         
-        self.chain = self.chain.set_index("contractSymbol")
-        
-        spot = Ticker(self.ticker).price[self.ticker]['regularMarketPrice']
+
         now = pd.Timestamp.now()
         
+        self.chain = self.chain.set_index("contractSymbol")
         self.chain["timeToMaturity"] = ((self.chain["expiration"] - now).dt.total_seconds() / (365 * 24 * 3600)).round(2)
         self.chain["moneyness"] = (self.chain["strike"] / spot).round(2)
         

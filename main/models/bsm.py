@@ -14,8 +14,6 @@ class BSMModel:
         
     
     def calc_d(self):
-        print(f"S={self.S}, K={self.K}, r={self.r}, sigma={self.sigma}, T={self.T}")
-
         d1 = (np.log(self.S / self.K) + (self.r + 0.5 * self.sigma**2) * (self.T)) / (self.sigma * np.sqrt(self.T))
         d2 = d1 - self.sigma * np.sqrt(self.T)
         self.d1 = d1
