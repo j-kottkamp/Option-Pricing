@@ -3,6 +3,7 @@ from models.bsm import BSMModel
 from models.msm import MSMModel
 from utils.create_heatmap import create_heatmap_matrix
 from utils.calc_time_delta import calc_time_delta
+from utils.calc_profit import profit_simulation
 
 def get_range_input(param_name: str):
         if param_name == "Volatility (σ)":
@@ -28,8 +29,10 @@ class OptionPricingConfig:
         self.r = r
         self.sigma = sigma
         self.T = T
-        self.topCall = None
-        self.topPut = None
+        self.top_call = None
+        self.top_put = None
+        self.market_price= None
+        self.n_options = None
         
     def option_pricing_default(self):
         self.model_type = st.sidebar.selectbox(
@@ -66,7 +69,6 @@ class OptionPricingConfig:
 
             delta = calc_time_delta(strike)
             self.T = delta/252
-            
         
         return self.model_type
          
@@ -82,17 +84,46 @@ class OptionPricingConfig:
             })
             st.table(df)
             
+            option_types = ["call", "put"]
+            price = {}
+            profit = {}
             
             model = BSMModel(S=self.S, K=self.K, T=self.T, r=self.r, sigma=self.sigma)
-            callPrice = model.price_option(option_type="call")
-            putPrice = model.price_option(option_type="put")
+            for type in option_types:
+                price[type] = model.price_option(option_type=type)
+                setattr(self, f"top_{type}", price[type])
+                
+            calc_profit = st.sidebar.checkbox(
+            "Calculate expected profit for market price?"
+            )
+            if calc_profit:
+                self.market_price = st.sidebar.number_input(
+                        "Real price of the Option",
+                        min_value=0.0, value=10.0
+                    )
+                
+                self.n_options = st.sidebar.number_input(
+                        "Number of options to buy",
+                        min_value=0.0, value=1000.0
+                    )
+                
+                profit["call"] = profit_simulation(option_price=self.market_price, S=self.S, K=self.K, r=self.r, 
+                                                             sigma=self.sigma, T=self.T, option_type="call")
+                
+                net_profit, avg_profit, roi = profit["call"]
             
-            self.topCall = callPrice
-            self.topPut = putPrice
+                st.write(f"Profit data for call Option when buying {self.n_options} options at {self.market_price}$ for {self.n_options * self.market_price}$")
+                st.write(f"Net Profit: {net_profit}")
+                st.write(f"Profit per Option: {avg_profit}")
+                st.write(f"Return on investment: {roi * 100}%")
             
             self.show_option_prices()
             
             self.heatmap_config()
+            
+            
+            
+                
             
     def msm_config(self):
         if self.model_type == "Markov-Switching Multifractal":
@@ -111,8 +142,8 @@ class OptionPricingConfig:
             callPrice, _ = model.price_option(option_type="call")
             putPrice, _ = model.price_option(option_type="put")
             
-            self.topCall = callPrice
-            self.topPut = putPrice
+            self.top_call = callPrice
+            self.top_put = putPrice
             
             self.show_option_prices()
                
@@ -143,7 +174,7 @@ class OptionPricingConfig:
                     font-size: 40px;
                     margin-top: 10px;
                     font-weight: 600;
-                '>{self.topCall.round(3)}</h2>
+                '>{self.top_call.round(3)}</h2>
             </div>
             """,
             unsafe_allow_html=True
@@ -173,7 +204,7 @@ class OptionPricingConfig:
                     font-size: 40px;
                     margin-top: 10px;
                     font-weight: 600;
-                '>{self.topPut.round(3)}</h2>
+                '>{self.top_put.round(3)}</h2>
             </div>
             """,
             unsafe_allow_html=True
@@ -228,6 +259,10 @@ class OptionPricingConfig:
                 st.pyplot(fig)
         except:
             st.error("Please select two distinct parameters for the heatmap")
+            
+    
+        
+
 
                 
             
