@@ -1,13 +1,13 @@
 from imports import np, plt
 
 class MSMModel:
-    def __init__(self, k=8, m0=0.8, m1=1.2, gamma=None, sigma_base=0.2, S=100, K=100, r=0.05, T=1, dt=1/252):
+    def __init__(self, k=8, m0=0.8, m1=1.2, gamma=None, sigma=0.2, S=100, K=100, r=0.05, T=1, dt=1/252):
         """
             k: Number of volatility components.
             m0: Low volatility state value.
             m1: High volatility state value.
             gamma: Transition probabilities for each component.
-            sigma_base: Base volatility level.
+            sigma: Base volatility level.
             S: Initial asset price.
             r: Risk-free rate.
             T: Time to maturity (years).
@@ -16,7 +16,7 @@ class MSMModel:
         self.k = k
         self.m0 = m0
         self.m1 = m1
-        self.sigma_base = sigma_base
+        self.sigma = sigma
         self.S = S
         self.K = K
         self.r = r
@@ -32,7 +32,7 @@ class MSMModel:
         if len(self.gamma) != k:
             raise ValueError(f"gamma must have length {k}")
 
-    def monte_carlo_simulate(self, n_sims=10000):
+    def monte_carlo_simulate(self, n_sims=100000):
         # S_T (np.array): Terminal asset prices for all simulations.
 
         current_states = np.random.choice([self.m0, self.m1], size=(n_sims, self.k))
@@ -47,7 +47,7 @@ class MSMModel:
                 current_states
             )
             product_components = np.prod(current_states, axis=1)
-            sigma_t = self.sigma_base * np.sqrt(product_components)
+            sigma_t = self.sigma * np.sqrt(product_components)
             dW = np.random.normal(0, 1, n_sims)
             log_return = (self.r - 0.5 * sigma_t**2) * self.dt + sigma_t * np.sqrt(self.dt) * dW
             logS += log_return
@@ -70,7 +70,10 @@ class MSMModel:
             raise ValueError("option_type must be 'call' or 'put'")
         discount_factor = np.exp(-self.r * self.T)
         price = discount_factor * np.mean(payoffs)
-        return price, S_T
+        
+        if __name__ == "__main__":
+            return price, S_T # return S_T only for histogram when running from this file 
+        return price
     
     def simulate_paths(self, n_paths=20):
         current_states = np.random.choice([self.m0, self.m1], size=(n_paths, self.k))
@@ -84,7 +87,7 @@ class MSMModel:
                 current_states
             )
             product_components = np.prod(current_states, axis=1)
-            sigma_t = self.sigma_base * np.sqrt(product_components)
+            sigma_t = self.sigma * np.sqrt(product_components)
             dW = np.random.normal(0, 1, n_paths)
             log_return = (self.r - 0.5 * sigma_t**2) * self.dt + sigma_t * np.sqrt(self.dt) * dW
             logS_paths[t] = logS_paths[t - 1] + log_return
@@ -101,7 +104,7 @@ if __name__ == "__main__":
         k=8,
         m0=0.8,
         m1=1.2,
-        sigma_base=0.0729,
+        sigma=0.0729,
         S=100,
         r=0.05,
         T=252/252,

@@ -16,26 +16,24 @@ def get_range_input(param_name: str):
             return min_val, max_val
 
 class OptionPricingConfig:
-    def __init__(self, 
-                 model_type="Black-Scholes-Merton", 
-                 S=100, 
-                 K=100, 
-                 r=0.05, 
-                 sigma=0.2, 
-                 T=1):
-        self.model_type = model_type
+    def __init__(self, S=100, K=100, r=0.05, sigma=0.2, T=1):
+        self.model = None
         self.S = S
         self.K = K
         self.r = r
         self.sigma = sigma
         self.T = T
+        self.option_types = ["call", "put"]
         self.top_call = None
         self.top_put = None
         self.market_price= None
         self.n_options = None
+        self.calc_profit = None
+        self.option_type = None
+        
         
     def option_pricing_default(self):
-        self.model_type = st.sidebar.selectbox(
+        model_type = st.sidebar.selectbox(
             "Select the type of pricing model you want to use",
             ("Black-Scholes-Merton", "Markov-Switching Multifractal")
         )
@@ -69,85 +67,115 @@ class OptionPricingConfig:
 
             delta = calc_time_delta(strike)
             self.T = delta/252
+            
+        self.calc_profit, self.option_type = self.calc_profit_sidebar_config()
         
-        return self.model_type
+        return model_type
+    
+    def calc_profit_sidebar_config(self):
+        option_type = "call" # Default
+        calc_profit = st.sidebar.checkbox(
+        "Calculate expected profit for market price?"
+        )
+        if calc_profit:
+            option_type = st.sidebar.selectbox(
+                "Select the option type",
+                self.option_types
+            )
+            calc_profit_params = {
+                "market_price": ("Real price of the Option", 0.0, 10.0),
+                "n_options": ("Number of options to buy", 0.0, 1000.0)
+            }
+            
+            for key, (description, min, default) in calc_profit_params.items():
+                setattr(self, key, st.sidebar.number_input(
+                    description, 
+                    min_value=min, value=default
+                ))
+                
+        return calc_profit, option_type
+    
+    def profit_calculations(self, type, model):
+        profit = {}        
+        profit[type] = profit_simulation(option_price=self.market_price, S=self.S, K=self.K, 
+                                         r=self.r, sigma=self.sigma, T=self.T, option_type=type)
+        
+        avg_profit, roi = profit[type]
+        net_profit = avg_profit * self.n_options
+        
+        profit_df = pd.DataFrame({
+        "Net Profit": [net_profit.round(2)],
+        "Profit per Option": [avg_profit.round(4)],
+        "Return on investment": [roi.round(2)],
+        })
+        
+        st.markdown(f"## Estimated profit data for {type} Option when buying {self.n_options} options at {self.market_price}\\$ for {self.n_options * self.market_price}\\$")
+        st.table(profit_df)
+        if model == "bsm":
+            st.write("Calculated from the Black-Scholes-Merton formula using 1Mio paths of a Geometric Brownian motion")
+            st.latex(r"""
+            S_t^{(i)} = S_0 \cdot \exp\left( \sum_{k=1}^{t} \left[ \left( \mu - \frac{1}{2} \sigma^2 \right) \Delta t + \sigma \sqrt{\Delta t} \cdot Z_k^{(i)} \right] \right)
+            """)
+        elif model == "msm":
+            st.write("Calculated using 100k paths from the Markov-Switching Multifractal model.")
+            st.write("A model using stochastic volatility to model scale invariance, fat tails, and long-term persistence.")
+            st.latex(r"""
+            \begin{aligned}
+                r_t &= \sigma_t \cdot \varepsilon_t,\quad \varepsilon_t \sim \mathcal{N}(0, 1) \\
+                \sigma_t^2 &= \sigma^2 \cdot \prod_{k=1}^{K} M_{k,t} \\
+                M_{k,t} &\in \{m_0, m_1\}, \quad \text{with } \mathbb{P}(M_{k,t} = m_1) = \gamma_k \\
+                \gamma_k &= 1 - (1 - \gamma_1)^{b^{k - 1}}
+            \end{aligned}
+            """)
          
     def bsm_config(self):
-        if self.model_type == "Black-Scholes-Merton":
-            st.title("Black-Scholes-Merton Model")
-            df = pd.DataFrame({
-                "Spot Price": [self.S],
-                "Strike Price": [self.K],
-                "Risk-free Interest Rate": [self.r],
-                "Volatility": [self.sigma],
-                "Time to Maturity": [self.T]
-            })
-            st.table(df)
-            
-            option_types = ["call", "put"]
-            price = {}
-            profit = {}
-            
-            model = BSMModel(S=self.S, K=self.K, T=self.T, r=self.r, sigma=self.sigma)
-            for type in option_types:
-                price[type] = model.price_option(option_type=type)
-                setattr(self, f"top_{type}", price[type])
-                
-            calc_profit = st.sidebar.checkbox(
-            "Calculate expected profit for market price?"
-            )
-            if calc_profit:
-                self.market_price = st.sidebar.number_input(
-                        "Real price of the Option",
-                        min_value=0.0, value=10.0
-                    )
-                
-                self.n_options = st.sidebar.number_input(
-                        "Number of options to buy",
-                        min_value=0.0, value=1000.0
-                    )
-                
-                profit["call"] = profit_simulation(option_price=self.market_price, S=self.S, K=self.K, r=self.r, 
-                                                             sigma=self.sigma, T=self.T, option_type="call")
-                
-                net_profit, avg_profit, roi = profit["call"]
-            
-                st.write(f"Profit data for call Option when buying {self.n_options} options at {self.market_price}$ for {self.n_options * self.market_price}$")
-                st.write(f"Net Profit: {net_profit}")
-                st.write(f"Profit per Option: {avg_profit}")
-                st.write(f"Return on investment: {roi * 100}%")
-            
-            self.show_option_prices()
-            
-            self.heatmap_config()
-            
-            
-            
-                
-            
+        self.model = BSMModel(S=self.S, K=self.K, T=self.T, r=self.r, sigma=self.sigma)
+        st.title("Black-Scholes-Merton Model")
+        st.markdown("## Parameter")
+        
+        params_df = pd.DataFrame({
+            "Spot Price": [self.S],
+            "Strike Price": [self.K],
+            "Risk-free Interest Rate": [self.r],
+            "Volatility": [self.sigma],
+            "Time to Maturity": [self.T]
+        })
+        st.table(params_df)
+        
+        
+        
+        if self.calc_profit:
+            self.profit_calculations(type=self.option_type, model="bsm")
+        
+        self.show_option_prices()
+        
+        self.heatmap_config()
+        
     def msm_config(self):
-        if self.model_type == "Markov-Switching Multifractal":
-            st.title("Markov-Switching Multifractal Model")
-            df = pd.DataFrame({
-                "Spot Price": [self.S],
-                "Strike Price": [self.K],
-                "Risk-free Interest Rate": [self.r],
-                "Volatility": [self.sigma],
-                "Time to Maturity": [self.T]
-            })
-            st.table(df)
-            
-            
-            model = MSMModel(S=self.S, K=self.K, T=self.T, r=self.r, sigma_base=self.sigma)
-            callPrice, _ = model.price_option(option_type="call")
-            putPrice, _ = model.price_option(option_type="put")
-            
-            self.top_call = callPrice
-            self.top_put = putPrice
-            
-            self.show_option_prices()
+        self.model = MSMModel(S=self.S, K=self.K, T=self.T, r=self.r, sigma=self.sigma)
+        st.title("Markov-Switching Multifractal Model")
+        st.markdown("## Parameter")
+        
+        params_df = pd.DataFrame({
+            "Spot Price": [self.S],
+            "Strike Price": [self.K],
+            "Risk-free Interest Rate": [self.r],
+            "Volatility": [self.sigma],
+            "Time to Maturity": [self.T]
+        })
+        st.table(params_df)
+        
+        self.show_option_prices()
+        
+        if self.calc_profit:
+            self.profit_calculations(type=self.option_type, model="msm")
                
     def show_option_prices(self):
+        price = {}
+        for type in self.option_types:
+            price[type] = self.model.price_option(option_type=type)
+            setattr(self, f"top_{type}", price[type])
+            
         callBox, putBox = st.columns(2)
 
         with callBox:
