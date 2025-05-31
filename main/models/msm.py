@@ -25,7 +25,7 @@ class MSMModel:
         self.n_steps = int(T / dt)
         
         if gamma is None:
-            self.gamma = np.array([0.5 * (4 ** (1 - i)) for i in range(1, k+1)])
+            self.gamma = np.array([0.5 * (4 ** (1 - i)) for i in range(1, k+1)]) # Simplified version to lower computational cost
         else:
             self.gamma = np.array(gamma)
         
@@ -48,14 +48,14 @@ class MSMModel:
             )
             product_components = np.prod(current_states, axis=1)
             sigma_t = self.sigma * np.sqrt(product_components)
-            dW = np.random.normal(0, 1, n_sims)
+            dW = np.random.standard_normal(n_sims)
             log_return = (self.r - 0.5 * sigma_t**2) * self.dt + sigma_t * np.sqrt(self.dt) * dW
             logS += log_return
             
         S_T = np.exp(logS)
         return S_T
 
-    def price_option(self, option_type='call', n_sims=10000):
+    def price_option(self, option_type='call', n_sims=100000):
         """
             K (float): Strike price.
             option_type (str): 'call' or 'put'.
@@ -104,8 +104,9 @@ if __name__ == "__main__":
         k=8,
         m0=0.8,
         m1=1.2,
-        sigma=0.0729,
+        sigma=0.25,
         S=100,
+        K=100,
         r=0.05,
         T=252/252,
         dt=1/252

@@ -36,9 +36,7 @@ class OptionData:
         self.chain = self.chain.set_index("contractSymbol")
         self.chain["timeToMaturity"] = ((self.chain["expiration"] - now).dt.total_seconds() / (365 * 24 * 3600)).round(2)
         self.chain["moneyness"] = (self.chain["strike"] / spot).round(2)
-        
-        self.chain["expirations"] = pd.to_datetime(self.chain["expiration"])
-        
+                
         params = ["strike", "lastPrice", "change", "percentChange", "volume", "openInterest", "bid", "ask", "contractSize", "impliedVolatility"]
         for item in params:
             value = getattr(self.chain, item)
@@ -82,4 +80,5 @@ class OptionData:
     
     def return_full_data(self):
         self.format_df()
+        print(self.chain.keys(), self.chain.index)
         return self.chain
