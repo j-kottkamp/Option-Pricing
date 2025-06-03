@@ -1,6 +1,7 @@
-from imports import st, np, Ticker
+from imports import st, np
 from utils.live_option_data import OptionData
 from models.msm import MSMModel
+from models.bsm import BSMModel
 from utils.live_stock_data import get_stock_data
 
 class OptionAnalysisConfig:
@@ -69,53 +70,56 @@ class OptionAnalysisConfig:
                 "adj": "raw",
                 "feed": "sip",
                 "sort": "asc",
-                "start": "2023-05-30",
-                "end": "2024-05-30", 
+                "start": "2024-05-30",
+                "end": "2025-05-30", 
                 "live": False}
-
-        if self.model == "Markov-Switching Multifractal":
-            prices, _ = get_stock_data(data)
-            log_returns = np.log(prices["close"] / prices["close"].shift(1)).dropna()
-            sigma_est = log_returns.std()
-            spot_price = prices["close"].iloc[-1]
+        
+        prices, _ = get_stock_data(data)
+        log_returns = np.log(prices["close"] / prices["close"].shift(1)).dropna()
+        sigma_est = log_returns.std() * np.sqrt(252) # annualize
+        print(sigma_est)
+        spot_price = prices["close"].iloc[-1]
+        
+        option_chain_df = self.chain.return_full_data()
+        msm_prices = {}
+        bsm_prices = {}
+        mispricings = {}
+        
+        strike_ttm_pairs = option_chain_df[["strike", "timeToMaturity"]].drop_duplicates().values
+        
+        diffs = ()
+        i = 0
+        for K, T in strike_ttm_pairs:
+            model_msm = MSMModel(sigma=sigma_est, S=spot_price, r=0.0425, dt=1/252, K=K, T=T)  # daily step
+            model_bsm = BSMModel(sigma=sigma_est, S=spot_price, r=0.0425, K=K, T=T,)
             
-            option_chain_df = self.chain.return_full_data()
-            modeled_prices = {}
-            mispricings = {}
-            
-            strike_ttm_pairs = option_chain_df[["strike", "timeToMaturity"]].drop_duplicates().values
+            msm_price = model_msm.price_option(option_type=self.option_type, n_sims=100000)
+            bsm_price = model_bsm.price_option(option_type=self.option_type)
 
+            msm_prices[(K, T)] = msm_price
+            bsm_prices[(K, T)] = bsm_price
 
-            for K, T in strike_ttm_pairs:
-                model = MSMModel(dt=1/252, sigma=sigma_est, S=spot_price, r=0.0425, K=K, T=T)  # daily step
-                model_price = model.price_option(option_type=self.option_type, n_sims=1000)
-                modeled_prices[(K, T)] = model_price
+            market_row = option_chain_df[
+                (option_chain_df["strike"] == K) & 
+                (option_chain_df["timeToMaturity"] == T)
+            ]
 
-                market_row = option_chain_df[
-                    (option_chain_df["strike"] == K) & 
-                    (option_chain_df["timeToMaturity"] == T)
-                ]
-
-                if not market_row.empty:
-                    market_price = market_row["lastPrice"].values[0]
-                else:
-                    st.warning(f"Keine Marktdaten für Strike={K}, TTM={T}")
-                    continue
-
-                # Debug
-                print(f"Strike: {K}, TTM: {T}")
-                print(f"Market Price: {market_price}")
-                print(f"Model Price:  {model_price}")
-                print(f"Difference:   {market_price - model_price}\n")
-
-                if abs(market_price - model_price) > 0.5:
-                    mispricings[(K, T)] = market_price - model_price
-
-            if mispricings:
-                st.subheader("Significant Model-deviation (|Δ| > 0.5):")
-                st.write(mispricings)
+            if not market_row.empty:
+                market_price = market_row["lastPrice"].values[0]
             else:
-                st.success("No significant deviation between market and model found.")
+                st.warning(f"Keine Marktdaten für Strike={K}, TTM={T}")
+                continue
 
-                            
+            # Debug
+            print(f"Strike: {K}, TTM: {T}")
+            print(f"Market Price: {market_price}")
+            print(f"BSM Price:  {bsm_price}")
+            print(f"MSM Price:  {msm_price}")
+            print(f"Difference:   {abs(bsm_price - msm_price)}\n")
+            
+            np.append(diffs, abs(bsm_price - msm_price))
+            i += 1
+            if i % 50 == 0:
+                break
+        
             

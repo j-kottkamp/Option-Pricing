@@ -12,6 +12,8 @@ import datetime
 from dotenv import load_dotenv
 import os
 import inspect
+from scipy.optimize import minimize
+import itertools
 
 
 __all__ = [
@@ -27,6 +29,8 @@ __all__ = [
     'Ticker',
     'inspect',
     'requests',
+    'minimize',
     'datetime',
+    'itertools',
     'load_dotenv',
 ]

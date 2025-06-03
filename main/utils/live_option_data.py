@@ -80,5 +80,4 @@ class OptionData:
     
     def return_full_data(self):
         self.format_df()
-        print(self.chain.keys(), self.chain.index)
         return self.chain
