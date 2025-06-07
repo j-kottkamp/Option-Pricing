@@ -14,6 +14,7 @@ import os
 import inspect
 from scipy.optimize import minimize
 import itertools
+import scipy
 
 
 __all__ = [
@@ -26,6 +27,7 @@ __all__ = [
     'time',
     'math',
     'json',
+    'scipy',
     'Ticker',
     'inspect',
     'requests',

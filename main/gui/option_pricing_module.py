@@ -31,16 +31,12 @@ class OptionPricingConfig:
         self.calc_profit = None
         self.option_type = None
         
-        
-    def option_pricing_default(self):
-        model_type = st.sidebar.selectbox(
-            "Select the type of pricing model you want to use",
-            ("Black-Scholes-Merton", "Markov-Switching Multifractal")
-        )
+    
+    def option_pricing_default_sidebar(self):
         sidebar_default = {"S": ("Current asset price", 0.0, 100.0),
-                      "K": ("Strike price", 0.0, 100.0),
-                      "r": ("Risk-free interest rate", 0.0, 0.05),
-                      "sigma": ("Volatility (σ)", 0.0, 0.2)}
+                            "K": ("Strike price", 0.0, 100.0),
+                            "r": ("Risk-free interest rate", 0.0, 0.05),
+                            "sigma": ("Volatility (σ)", 0.0, 0.2)}
         
         for key, (description, min_val, default_val) in sidebar_default.items():
             setattr(self, key, st.sidebar.number_input(
@@ -67,6 +63,17 @@ class OptionPricingConfig:
 
             delta = calc_time_delta(strike)
             self.T = delta/252
+            
+        return self.S, self.K, self.r, self.sigma, self.T
+        
+        
+    def option_pricing_default(self):
+        model_type = st.sidebar.selectbox(
+            "Select the type of pricing model you want to use",
+            ("Black-Scholes-Merton", "Markov-Switching Multifractal")
+        )
+        
+        self.option_pricing_default_sidebar()
             
         self.calc_profit, self.option_type = self.calc_profit_sidebar_config()
         

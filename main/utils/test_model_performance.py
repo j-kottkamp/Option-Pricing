@@ -25,7 +25,7 @@ class OptionAnalysisConfig:
             prices, _ = get_stock_data(data)
             log_returns = np.log(prices["close"] / prices["close"].shift(1)).dropna()
             sigma_est = log_returns.std() * np.sqrt(252) # annualize
-            print(sigma_est)
+            print("Estimated Vol", sigma_est)
             spot_price = prices["close"].iloc[-1]
             
             option_chain_df = self.chain.return_full_data()
@@ -66,7 +66,7 @@ class OptionAnalysisConfig:
                 if not market_row.empty:
                     market_price = market_row["lastPrice"].values[0]
                 else:
-                    st.warning(f"Keine Marktdaten für Strike={K}, TTM={T}")
+                    st.warning(f"No Market Data for Strike={K}, TTM={T}")
                     continue
 
                 model_diffs.append(bsm_price - msm_price)

@@ -2,6 +2,7 @@ from imports import st, pd, np, plt, sns
 from models.bsm import BSMModel
 from gui.option_pricing_module import OptionPricingConfig
 from gui.option_analysis_module import OptionAnalysisConfig
+from gui.gbm_generator_module import GBMGeneratorConfig
 from gui.main_config import main_config_page
 
 
@@ -18,6 +19,9 @@ def main():
     elif application == "Option Data Analysis":
         module = OptionAnalysisConfig()
         module.option_analysis_default()
+    elif application == "GBM Generator":
+        module = GBMGeneratorConfig()
+        module.gbm_generator_default()
 
 if __name__ == "__main__":
     main()
