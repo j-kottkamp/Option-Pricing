@@ -16,8 +16,11 @@ def get_stock_data(data):
     end=data["end"]
     live=data["live"]
     
+    if live:
+        start = calc_start(tf, limit)
+    
     url1 = f"https://data.alpaca.markets/v2/stocks/bars?symbols={symbol}&timeframe={tf}&start={start}&end={end}&limit={limit}&adjustment={adj}&feed={feed}&sort={sort}"
-    url2 = f"https://data.alpaca.markets/v2/stocks/bars?symbols={symbol}&timeframe={tf}&limit={limit}&adjustment={adj}&feed={feed}&sort={sort}"
+    url2 = f"https://data.alpaca.markets/v2/stocks/bars?symbols={symbol}&timeframe={tf}&start={start}&limit={limit}&adjustment={adj}&feed={feed}&sort={sort}"
 
     headers = {
         "accept": "application/json",
@@ -30,6 +33,28 @@ def get_stock_data(data):
     data = json.loads(response.text)
     
     return format_data(data, symbol)
+
+def calc_start(tf, limit):
+    number = int(''.join([c for c in tf if c.isdigit()]))  # e.g. 5 from "5Min"
+    unit = ''.join([c for c in tf if not c.isdigit()]).lower()  # e.g. "min" from "5Min"
+    limit = int(limit)
+
+    now = datetime.datetime.now()
+
+    if unit == "min" or "m" in unit:
+        delta = datetime.timedelta(minutes=number)
+    elif unit == "hour" or "h" in unit:
+        delta = datetime.timedelta(hours=number)
+    elif unit == "day" or "d" in unit:
+        delta = datetime.timedelta(days=number)
+    elif unit == "week" or "w" in unit:
+        delta = datetime.timedelta(weeks=number)
+    else:
+        raise ValueError(f"Unsupported timeframe unit: '{unit}'. Use Min, Hour, Day, or Week.")
+
+    start_time = now - limit * delta
+    
+    return start_time.strftime("%Y-%m-%dT%H:%M:%SZ")
 
 def format_data(data, symbol):
     df = pd.DataFrame()

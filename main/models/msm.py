@@ -72,7 +72,7 @@ class MSMModel:
         price = discount_factor * np.mean(payoffs)
         
         if __name__ == "__main__":
-            return price, S_T # return S_T only for histogram when running from this file 
+            return price, S_T # return S_T only for histogram when running from this file (alone)
         return price
     
     def simulate_paths(self, n_paths=20):

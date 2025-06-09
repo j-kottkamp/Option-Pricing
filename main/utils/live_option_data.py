@@ -34,15 +34,22 @@ class OptionData:
         now = pd.Timestamp.now()
         
         self.chain = self.chain.set_index("contractSymbol")
-        self.chain["timeToMaturity"] = ((self.chain["expiration"] - now).dt.total_seconds() / (365 * 24 * 3600)).round(2)
-        self.chain["moneyness"] = (self.chain["strike"] / spot).round(2)
+        self.chain["timeToMaturity"] = ((self.chain["expiration"] - now).dt.total_seconds() / (365 * 24 * 3600)).round(3)
+        self.chain["moneyness"] = (self.chain["strike"] / spot).round(3)
                 
         params = ["strike", "lastPrice", "change", "percentChange", "volume", "openInterest", "bid", "ask", "contractSize", "impliedVolatility"]
         for item in params:
             value = getattr(self.chain, item)
-            rounded_val = value.round(2)
+            rounded_val = value.round(3)
             setattr(self.chain, item, rounded_val)
-        
+            
+        custom_order = [
+            "symbol", "expiration", "timeToMaturity", "strike", "impliedVolatility", "lastPrice", "bid", "ask", "volume", 
+            "percentChange", "change", "openInterest", "moneyness", "currency", "contractSize", "lastTradeDate", "inTheMoney"
+        ]
+        # Filter existing columns
+        existing_columns = [col for col in custom_order if col in self.chain.columns]
+        self.chain = self.chain[existing_columns]
         
     def create_option_matrix(self, matrix_params=["timeToMaturity", "moneyness", "impliedVolatility"], full=False):
         self.format_df()
