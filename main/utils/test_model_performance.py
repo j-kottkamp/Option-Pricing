@@ -1,4 +1,4 @@
-from imports import st, np, plt
+from imports import st, np, plt, pd
 from utils.live_option_data import OptionData
 from models.msm import MSMModel
 from models.bsm import BSMModel
@@ -29,125 +29,89 @@ class OptionAnalysisConfig:
         
         option_chain_df = self.chain.return_full_data()
         
-        strike_ttm_pairs = option_chain_df.loc[option_chain_df["timeToMaturity"] > 0.25, ["strike", "timeToMaturity", "impliedVolatility"]].drop_duplicates()
-        strike_ttm_pairs = strike_ttm_pairs.loc[strike_ttm_pairs["strike"] > (prices["close"].iloc[-1] * 1)].values # Search for deep out of the money options
+        option_pairs = option_chain_df.loc[option_chain_df["timeToMaturity"] > 0.25, ["strike", "timeToMaturity", "impliedVolatility", "bid", "ask"]].drop_duplicates()
+        option_pairs = option_pairs.loc[option_pairs["strike"] > (prices["close"].iloc[-1] * 1.1)].values # Search for deep out of the money options
         
-        msm_prices = {}
-        msm_fair_prices = {}
-        bsm_prices = {}
-        fair_prices = {}
-        
-        model_diffs = []
-        msm_fair_diffs = []
-        msm_market_diffs = []
-        bsm_fair_diffs = []
-        bsm_market_diffs = []
-        fair_market_diffs = []
-        imp_vol_est_vol_diffs = []
-        msm_fair_msm_diffs = []
-        msm_fair_bsm_diffs = []
-        msm_fair_fair_diffs = []
-        msm_fair_market_diffs = []
+        df = pd.DataFrame(columns=["K", "T", "option_price", "msm_price", "fair_msm_price", "bsm_price", "fair_bsm_price", "model_diff", "fair_model_diff", 
+                                   "msm_market_diff", "fair_msm_market_diff", "bsm_market_diff", "fair_bsm_market_diff", "msm_fair_msm_diff", 
+                                   "bsm_fair_bsm_diff", "est_imp_vol_diff"])
                     
         i = 0
-        end = 100
-        for K, T, imp_vol in strike_ttm_pairs:
+        end = 10
+        for K, T, imp_vol, bid, ask in option_pairs:
             i += 1
             if i % end == 0:
                 break
+            
             model_msm = MSMModel(sigma=sigma_est, S=spot_price, r=0.0425, dt=1/252, K=K, T=T)  # daily step
-            model_msm_fair = MSMModel(sigma=imp_vol, S=spot_price, r=0.0425, dt=1/252, K=K, T=T)
+            model_fair_msm = MSMModel(sigma=imp_vol, S=spot_price, r=0.0425, dt=1/252, K=K, T=T)
             model_bsm = BSMModel(sigma=sigma_est, S=spot_price, r=0.0425, K=K, T=T,)
-            model_fair = BSMModel(sigma=imp_vol, S=spot_price, r=0.0425, K=K, T=T,)
+            model_fair_bsm = BSMModel(sigma=imp_vol, S=spot_price, r=0.0425, K=K, T=T,)
             
             msm_price = model_msm.price_option(option_type=self.option_type, n_sims=50000)
-            msm_fair_price = model_msm_fair.price_option(option_type=self.option_type, n_sims=50000)
+            fair_msm_price = model_fair_msm.price_option(option_type=self.option_type, n_sims=50000)
             bsm_price = model_bsm.price_option(option_type=self.option_type)
-            fair_price = model_fair.price_option(option_type=self.option_type)
+            fair_bsm_price = model_fair_bsm.price_option(option_type=self.option_type)
+            market_price = (bid + ask) / 2 # Mid price for simplicity
 
-            msm_prices[(K, T)] = msm_price
-            msm_fair_prices[(K, T)] = msm_fair_price
-            bsm_prices[(K, T)] = bsm_price
-            fair_prices[(K, T)] = fair_price
-
-            market_row = option_chain_df[
-                (option_chain_df["strike"] == K) & 
-                (option_chain_df["timeToMaturity"] == T)
-            ]
-
-            if not market_row.empty:
-                market_price = market_row["lastPrice"].values[0]
-            else:
-                st.warning(f"No Market Data for Strike={K}, TTM={T}")
-                continue
-
-            model_diffs.append(bsm_price - msm_price)
-            msm_fair_diffs.append(msm_price - fair_price)
-            msm_market_diffs.append(msm_price - market_price)
-            bsm_fair_diffs.append(bsm_price - fair_price)
-            bsm_market_diffs.append(bsm_price - market_price)
-            fair_market_diffs.append(fair_price - market_price)
-            imp_vol_est_vol_diffs.append(imp_vol - sigma_est)
-            msm_fair_msm_diffs.append(msm_fair_price - msm_price)
-            msm_fair_bsm_diffs.append(msm_fair_price - bsm_price)
-            msm_fair_fair_diffs.append(msm_fair_price - fair_price)
-            msm_fair_market_diffs.append(msm_fair_price - market_price)
+            new_row = {
+                "K": K,                   
+                "T": T,
+                "option_price": market_price,            
+                "msm_price": msm_price,        
+                "fair_msm_price": fair_msm_price,    
+                "bsm_price": bsm_price,        
+                "fair_bsm_price": fair_bsm_price,    
+                "model_diff": msm_price - bsm_price,        
+                "fair_model_diff": fair_msm_price - fair_bsm_price,  
+                "msm_market_diff": msm_price - market_price,    
+                "fair_msm_market_diff": fair_msm_price - market_price,
+                "bsm_market_diff": bsm_price - market_price,
+                "fair_bsm_market_diff": fair_bsm_price - market_price,
+                "msm_fair_msm_diff": msm_price - fair_msm_price,
+                "bsm_fair_bsm_diff": bsm_price - fair_bsm_price,
+                "est_imp_vol_diff": sigma_est - imp_vol
+            }
+            
+            df = pd.concat([df, pd.DataFrame([new_row])])
             
             # Debug
             print(f"- - - Nr. {i - 1} - - -")
             print(f"Strike: {K}, TTM: {T}, Imp Vol: {imp_vol}, Est Vol: {sigma_est:.3f}")
             print(f"Market Price: {market_price}")
-            print(f"Fair Price:   {fair_price}")
+            print(f"Fair BSM Price:   {fair_bsm_price}")
             print(f"BSM Price:    {bsm_price}")
+            print(f"MSM Fair Price: {fair_msm_price}")
             print(f"MSM Price:    {msm_price}")
-            print(f"MSM Fair Price: {msm_fair_price}")
             print(f"BSM-MSM Difference:   {bsm_price - msm_price}")
-            print(f"Fair MSM-Market Difference: {msm_fair_price - market_price}")
-            print(f"Fair MSM-Fair Difference: {msm_fair_price - fair_price}\n")
+            print(f"Fair MSM-Market Difference: {fair_msm_price - market_price}")
+            print(f"Fair MSM-Fair BSM Difference: {fair_msm_price - fair_bsm_price}\n")            
+        
+        
 
-            
-            model_diff = bsm_price - msm_price
-            
-        
-        
-        model_diffs = np.array(model_diffs)
-        msm_fair_diffs = np.array(msm_fair_diffs)
-        msm_market_diffs = np.array(msm_market_diffs)
-        bsm_fair_diffs = np.array(bsm_fair_diffs)
-        bsm_market_diffs = np.array(bsm_market_diffs)
-        fair_market_diffs = np.array(fair_market_diffs)
-        imp_vol_est_vol_diffs = np.array(imp_vol_est_vol_diffs)
-        msm_fair_msm_diffs = np.array(msm_fair_msm_diffs)
-        msm_fair_bsm_diffs = np.array(msm_fair_bsm_diffs)
-        msm_fair_fair_diffs = np.array(msm_fair_fair_diffs)
-        msm_fair_market_diffs = np.array(msm_fair_market_diffs)
-
-        print(f"Avg Model diff: {model_diffs.mean()}")
-        print(f"Avg MSM-Fair diff: {msm_fair_diffs.mean()}")
-        print(f"Avg MSM-Market diff: {msm_market_diffs.mean()}")
-        print(f"Avg BSM-Fair diff: {bsm_fair_diffs.mean()}")
-        print(f"Avg BSM-Market diff: {bsm_market_diffs.mean()}")
-        print(f"Avg Fair-Market diff: {fair_market_diffs.mean()}")
-        print(f"Avg Imp Vol Est Vol diff: {imp_vol_est_vol_diffs.mean()}")
-        print(f"Avg MSM-Fair-MSM diff: {msm_fair_msm_diffs.mean()}")
-        print(f"Avg MSM-Fair-BSM diff: {msm_fair_bsm_diffs.mean()}")
-        print(f"Avg MSM-Fair-Fair diff: {msm_fair_fair_diffs.mean()}")
-        print(f"Avg MSM-Fair-Market diff: {msm_fair_market_diffs.mean()}")
-        
+        print(f"Avg Model diff: {df["model_diff"].mean()}")
+        print(f"Avg Fair Model diff: {df["fair_model_diff"].mean()}")
+        print(f"Avg MSM-Market diff: {df["msm_market_diff"].mean()}")
+        print(f"Avg Fair MSM-Market diff: {df["fair_msm_market_diff"].mean()}")
+        print(f"Avg BSM-Market diff: {df["bsm_market_diff"].mean()}")
+        print(f"Avg Fair BSM-Market diff: {df["fair_bsm_market_diff"].mean()}")
+        print(f"Avg MSM-Fair MSM diff: {df["msm_fair_msm_diff"].mean()}")
+        print(f"Avg BSM-Fair BSM diff: {df["bsm_fair_bsm_diff"].mean()}")
+        print(f"Avg Est Imp Vol diff: {df["est_imp_vol_diff"].mean()}")
+                
         market_diffs = {
-            "msm_market_diffs": msm_market_diffs,
-            "bsm_market_diffs": bsm_market_diffs,
-            "fair_market_diffs": fair_market_diffs,
-            "msm_fair_market_diffs": msm_fair_market_diffs,
+            "msm_market_diffs": df["msm_market_diff"],
+            "fair_msm_market_diffs": df["fair_msm_market_diff"],
+            "bsm_market_diffs": df["bsm_market_diff"],
+            "fair_bsm_market_diffs": df["fair_bsm_market_diff"],
         }
+
         other_diffs = {
-            "model_diffs": model_diffs,
-            "msm_fair_diffs": msm_fair_diffs,
-            "bsm_fair_diffs": bsm_fair_diffs,
-            "imp_vol_est_vol_diffs": imp_vol_est_vol_diffs,
-            "msm_fair_msm_diffs": msm_fair_msm_diffs,
-            "msm_fair_bsm_diffs": msm_fair_bsm_diffs,
-            "msm_fair_fair_diffs": msm_fair_fair_diffs,
+            "model_diffs": df["model_diff"],
+            "fair_model_diffs": df["fair_model_diff"],
+            "msm_fair_msm_diffs": df["msm_fair_msm_diff"],
+            "bsm_fair_bsm_diffs": df["bsm_fair_bsm_diff"],
+            "est_imp_vol_diffs": df["est_imp_vol_diff"],
         }
 
         plt.figure(figsize=(14, 6))
