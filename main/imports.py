@@ -11,9 +11,7 @@ import json
 import datetime
 from dotenv import load_dotenv
 import os
-import inspect
 from scipy.optimize import minimize
-import itertools
 import scipy
 
 
@@ -29,10 +27,8 @@ __all__ = [
     'json',
     'scipy',
     'Ticker',
-    'inspect',
     'requests',
     'minimize',
     'datetime',
-    'itertools',
     'load_dotenv',
 ]

@@ -10,9 +10,7 @@ yahooquery,
 requests,
 json,
 datetime,
-dotenv
-
-
+doten
 
 
 

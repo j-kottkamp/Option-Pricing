@@ -1,4 +1,4 @@
-from imports import pd, Ticker, np, inspect, st
+from imports import pd, Ticker, np, st
 class OptionData:
     def __init__(self, ticker="AAPL", option_type="call"):
         self.ticker = ticker.upper()
