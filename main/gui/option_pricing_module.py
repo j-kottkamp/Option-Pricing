@@ -140,6 +140,9 @@ class OptionPricingConfig:
         st.title("Black-Scholes-Merton Model")
         st.markdown("## Parameter")
         
+        if self.calc_profit:
+            self.profit_calculations(type=self.option_type, model="bsm")
+        
         params_df = pd.DataFrame({
             "Spot Price": [self.S],
             "Strike Price": [self.K],
@@ -148,11 +151,6 @@ class OptionPricingConfig:
             "Time to Maturity": [self.T]
         })
         st.table(params_df)
-        
-        
-        
-        if self.calc_profit:
-            self.profit_calculations(type=self.option_type, model="bsm")
         
         self.show_option_prices()
         
@@ -163,6 +161,9 @@ class OptionPricingConfig:
         st.title("Markov-Switching Multifractal Model")
         st.markdown("## Parameter")
         
+        if self.calc_profit:
+            self.profit_calculations(type=self.option_type, model="msm")
+        
         params_df = pd.DataFrame({
             "Spot Price": [self.S],
             "Strike Price": [self.K],
@@ -173,9 +174,6 @@ class OptionPricingConfig:
         st.table(params_df)
         
         self.show_option_prices()
-        
-        if self.calc_profit:
-            self.profit_calculations(type=self.option_type, model="msm")
                
     def show_option_prices(self):
         price = {}

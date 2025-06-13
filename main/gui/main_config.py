@@ -9,6 +9,6 @@ def main_config_page():
 
     application = st.sidebar.selectbox(
         "Select App",
-        ("Option Pricing Module", "Option Data Analysis", "GBM Generator")
+        ("Option Pricing Module", "Option Data Analysis", "Stock Data Analysis", "GBM Generator")
     )
     return application

@@ -16,7 +16,8 @@ def get_stock_data(data):
     end=data["end"]
     live=data["live"]
     
-    if live:
+    # Sets start automatically so that "limit" data points are returned 
+    if live and start == None:
         start = calc_start(tf, limit)
     
     url1 = f"https://data.alpaca.markets/v2/stocks/bars?symbols={symbol}&timeframe={tf}&start={start}&end={end}&limit={limit}&adjustment={adj}&feed={feed}&sort={sort}"
@@ -49,6 +50,8 @@ def calc_start(tf, limit):
         delta = datetime.timedelta(days=number)
     elif unit == "week" or "w" in unit:
         delta = datetime.timedelta(weeks=number)
+    elif unit == "month":
+        delta = datetime.timedelta(int(days=number * 30.41))
     else:
         raise ValueError(f"Unsupported timeframe unit: '{unit}'. Use Min, Hour, Day, or Week.")
 
