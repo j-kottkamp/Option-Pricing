@@ -22,7 +22,7 @@ Volatility evolves via discrete regimes, switching over time. Simulates heterosk
 - Benchmark computational performance
 
 ### [Memory-Mapped GBM Path Generation](docs/path_generation.md)
-<img src="docs/images/gbm_paths.png" alt="Chart" width="500"/>
+<img src="docs/images/gbm_paths.png" alt="Chart" width="400"/>
 - Generate millions of Geometric Brownian Motion paths efficiently
 - Low-RAM operation via memory mapping technology
 - Configurable drift and volatility parameters
