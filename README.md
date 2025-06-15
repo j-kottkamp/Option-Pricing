@@ -10,7 +10,7 @@ The system is built to analyze and simulate option prices under both constant an
 
 ## Graphical User Interface
 The framework now includes a complete GUI that provides access to:
-<img src="docs/images/estimated_profit.png" alt="Chart" width="350"/>
+<img src="docs/images/estimated_profit.png" alt="Chart" width="700"/>
 - Interactive model testing and validation
 - Visual path simulation monitoring
 - Real-time matrix construction
@@ -52,7 +52,7 @@ Volatility evolves via discrete regimes, switching over time. Simulates heterosk
 - Fully configurable parameters
 
 ### [Option Data Processing](docs/data_processing.md)
-<img src="docs/images/full_option_data.png" alt="Chart" width="350"/>
+<img src="docs/images/full_option_data.png" alt="Chart" width="700"/>
 - Fetch and clean option chain data
 - Convert data into a standardized format for analysis and simulation
 
