@@ -31,7 +31,6 @@ pip install -r requirements.txt
 cd main
 python -m streamlit run scripts/open_gui.py
 ```
-![Demo](docs/images/start-ezgif.com-optimize.gif)
 
 ## Supported Models
 ### Black-Scholes-Merton (BSM)
