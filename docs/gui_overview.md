@@ -1,4 +1,5 @@
 # Options Trading & Financial Modeling Platform Documentation
+# GUI Overview
 
 ## Table of Contents
 1. [Platform Overview](#platform-overview)

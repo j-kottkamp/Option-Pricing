@@ -8,7 +8,7 @@ This project is a modular framework for option pricing and simulation, allowing 
 
 The system is built to analyze and simulate option prices under both constant and time-varying volatility regimes, supporting both academic exploration and real-world prototyping.
 
-## Graphical User Interface
+## [Graphical User Interface](docs/gui_overview.md)
 The framework now includes a complete GUI that provides access to:
 <img src="docs/images/estimated_profit.png" alt="Chart" width="700"/>
 
@@ -19,9 +19,9 @@ The framework now includes a complete GUI that provides access to:
 - Complete freedom in using custom input parameter
 
 
-[Learn about GUI features](docs/gui_guide.md)
+[Learn about GUI features](docs/gui_overview.md)
 
-### TL;DR:
+### TL;DR to access:
 1. Install requirements
 2. Move inside /main 
 3. Run scripts/open_gui.py
@@ -31,6 +31,7 @@ pip install -r requirements.txt
 cd main
 python -m streamlit run scripts/open_gui.py
 ```
+![Demo](docs/images/start-ezgif.com-optimize.gif)
 
 ## Supported Models
 ### Black-Scholes-Merton (BSM)
@@ -40,12 +41,12 @@ Standard European option pricing with constant volatility.
 Volatility evolves via discrete regimes, switching over time. Simulates heteroskedastic returns and long-memory volatility.
 
 ## Key Features
-### [Model Performance Testing](docs/testing.md)
+### [Model Performance Testing](docs/gui_overview.md)
 - Validate model accuracy against theoretical values
 - Compare different model implementations
 
 
-### [Memory-Mapped GBM Path Generation](docs/path_generation.md)
+### [Memory-Mapped GBM Path Generation](docs/gui_overview.md)
 <p float="left">
 <img src="docs/images/gbm_paths.png" alt="Chart" width="350"/>
 <img src="docs/images/many_gbm_paths.png" alt="Chart" width="350"/>
@@ -54,14 +55,14 @@ Volatility evolves via discrete regimes, switching over time. Simulates heterosk
 - Low-RAM operation via memory mapping technology
 - Fully configurable parameters
 
-### [Option Data Processing](docs/data_processing.md)
+### [Option Data Processing](docs/gui_overview.md)
 <img src="docs/images/full_option_data.png" alt="Chart" width="700"/>
 
 - Fetch and clean option chain data
 - Convert data into a standardized format for analysis and simulation
 
 
-### [Matrix Construction Toolkit](docs/matrix_builder.md)
+### [Matrix Construction Toolkit](docs/gui_overview.md)
 <img src="docs/images/option_values_heatmaps.png" alt="Chart" width="350"/>
 
 - Create custom option pricing matrices that show fair prices across configurable ranges
