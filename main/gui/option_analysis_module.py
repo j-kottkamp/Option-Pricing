@@ -21,7 +21,7 @@ class OptionAnalysisConfig:
                 "end": "2030-05-30", # Is ignored with "live" on
                 "live": True}
         
-        self.prices, _ = get_stock_data(data)
+        self.prices = get_stock_data(data)
                        
     def option_analysis_default(self):
         self.option_type = st.sidebar.selectbox(

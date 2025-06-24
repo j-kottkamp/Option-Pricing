@@ -33,7 +33,30 @@ def get_stock_data(data):
     response = requests.get(search, headers=headers)
     data = json.loads(response.text)
     
-    return format_data(data, symbol)
+    try:
+        return format_data(data, symbol)
+    except:
+        print(data)
+
+
+def format_data(data, symbol):
+    df = pd.DataFrame()
+    df["close"] = [bar["c"] for bar in data["bars"][symbol]]
+    df["high"] = [bar["h"] for bar in data["bars"][symbol]]
+    df["low"] = [bar["l"] for bar in data["bars"][symbol]]
+    df["open"] = [bar["o"] for bar in data["bars"][symbol]]
+    df["volume"] = [bar["v"] for bar in data["bars"][symbol]]
+    
+    timestamps = [bar["t"] for bar in data["bars"][symbol]]
+    df["timestamps"] = [datetime.datetime.fromisoformat(t[:-1]) for t in timestamps]
+    df["returns"] = df.close.pct_change().dropna()
+    
+    start_date = df.timestamps.min()
+    end_date = df.timestamps.max()
+    time_diff = (end_date - start_date).days
+    years = time_diff / 365
+    
+    return df
 
 def calc_start(tf, limit):
     number = int(''.join([c for c in tf if c.isdigit()]))  # e.g. 5 from "5Min"
@@ -58,22 +81,3 @@ def calc_start(tf, limit):
     start_time = now - limit * delta
     
     return start_time.strftime("%Y-%m-%dT%H:%M:%SZ")
-
-def format_data(data, symbol):
-    df = pd.DataFrame()
-    df["close"] = [bar["c"] for bar in data["bars"][symbol]]
-    df["high"] = [bar["h"] for bar in data["bars"][symbol]]
-    df["low"] = [bar["l"] for bar in data["bars"][symbol]]
-    df["open"] = [bar["o"] for bar in data["bars"][symbol]]
-    df["volume"] = [bar["v"] for bar in data["bars"][symbol]]
-    
-    timestamps = [bar["t"] for bar in data["bars"][symbol]]
-    df["timestamps"] = [datetime.datetime.fromisoformat(t[:-1]) for t in timestamps]
-    df["returns"] = df.close.pct_change().dropna()
-    
-    start_date = df.timestamps.min()
-    end_date = df.timestamps.max()
-    time_diff = (end_date - start_date).days
-    years = time_diff / 365
-    
-    return df, years

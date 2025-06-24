@@ -9,12 +9,17 @@ from yahooquery import Ticker
 import requests 
 import json 
 import datetime
+import datetime as dt
 from dotenv import load_dotenv
 import os
 from scipy.optimize import minimize
 import scipy
 import plotly.express as px
 import plotly.graph_objects as go
+from statsmodels.tsa.stattools import adfuller
+from statsmodels.tsa.vector_ar.vecm import coint_johansen
+
+
 
 
 __all__ = [
@@ -24,6 +29,7 @@ __all__ = [
     'st',
     'px',
     'go',
+    'dt',
     'plt',
     'sns',
     'time',
@@ -32,7 +38,9 @@ __all__ = [
     'scipy',
     'Ticker',
     'requests',
+    'adfuller',
     'minimize',
     'datetime',
     'load_dotenv',
+    'coint_johansen',
 ]

@@ -93,7 +93,7 @@ class StockDataConfig:
                 "live": self.live}
         
         try:
-            self.df, years = get_stock_data(data)
+            self.df = get_stock_data(data)
             st.dataframe(self.df)
             self.plot_stock_data()
         except:

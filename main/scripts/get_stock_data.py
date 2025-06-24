@@ -13,7 +13,7 @@ def main():
             "end": "2024-04-26", 
             "live": True} # If live, neither start nor end parameters are required. Returns "limit" bars.
     
-    df, years = get_stock_data(data)
+    df = get_stock_data(data)
     print(df.tail(20))
     
 
