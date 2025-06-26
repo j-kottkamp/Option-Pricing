@@ -41,6 +41,7 @@ Volatility evolves via discrete regimes, switching over time. Simulates heterosk
 
 ## Key Features
 ### [Model Performance Testing](docs/gui_overview.md)
+<img src="docs/images/option_model_diffs.png" alt="Chart" width="700"/>
 - Validate model accuracy against theoretical values
 - Compare different model implementations
 

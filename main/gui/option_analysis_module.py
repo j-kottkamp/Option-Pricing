@@ -97,19 +97,20 @@ class OptionAnalysisConfig:
         ttm, strike = self.compare_sidebar()
         df = self.option_model_comparison(ttm, strike)
         
+        
         market_diffs = {
-        "msm_market_diffs": df["msm_market_diff"],
-        "fair_msm_market_diffs": df["fair_msm_market_diff"],
-        "bsm_market_diffs": df["bsm_market_diff"],
-        "fair_bsm_market_diffs": df["fair_bsm_market_diff"],
+            "MSM Market Differences": df["msm_market_diff"],
+            "Fair MSM Market Differences": df["fair_msm_market_diff"],
+            "BSM Market Differences": df["bsm_market_diff"],
+            "Fair BSM Market Differences": df["fair_bsm_market_diff"],
         }
 
         other_diffs = {
-            "model_diffs": df["model_diff"],
-            "fair_model_diffs": df["fair_model_diff"],
-            "msm_fair_msm_diffs": df["msm_fair_msm_diff"],
-            "bsm_fair_bsm_diffs": df["bsm_fair_bsm_diff"],
-            "est_imp_vol_diffs": df["est_imp_vol_diff"],
+            "Model Differences": df["model_diff"],
+            "Fair Model Differences": df["fair_model_diff"],
+            "MSM vs Fair MSM Differences": df["msm_fair_msm_diff"],
+            "BSM vs Fair BSM Differences": df["bsm_fair_bsm_diff"],
+            "Estimated vs Implied Volatility Differences": df["est_imp_vol_diff"],
         }
         
         market_plot, other_plot = st.columns(2)
@@ -117,7 +118,7 @@ class OptionAnalysisConfig:
         with market_plot:
             fig, ax = plt.subplots(figsize=(14, 6))
             for label, data in market_diffs.items():
-                ax.plot(data, label=label)
+                ax.plot(range(len(data)), data.values, label=label)
             
             ax.set_title("Line Plot of Model Differences")
             ax.set_xlabel("Index")
@@ -126,11 +127,13 @@ class OptionAnalysisConfig:
             ax.grid(True)
             
             st.pyplot(fig)
+            
+            print(f"Data ------->\n{data}")
         
         with other_plot:
             fig, ax = plt.subplots(figsize=(14, 6))
             for label, data in other_diffs.items():
-                ax.plot(data, label=label)
+                ax.plot(range(len(data)), data.values, label=label)
             
             ax.set_title("Line Plot of Model Differences")
             ax.set_xlabel("Index")
@@ -225,16 +228,15 @@ class OptionAnalysisConfig:
         print(f"Avg BSM-Fair BSM diff: {df["bsm_fair_bsm_diff"].mean()}")
         print(f"Avg Est Imp Vol diff: {df["est_imp_vol_diff"].mean()}")
         
-        st.write(
-            f"Average Model difference: {df['model_diff'].mean():.3f}"
-            f"Average Fair Model difference: {df['fair_model_diff'].mean():.3f}"
-            f"Average MSM-Market difference: {df['msm_market_diff'].mean():.3f}"
-            f"Average Fair MSM-Market difference: {df['fair_msm_market_diff'].mean():.3f}"
-            f"Average BSM-Market difference: {df['bsm_market_diff'].mean():.3f}"
-            f"Average Fair BSM-Market difference: {df['fair_bsm_market_diff'].mean():.3f}"
-            f"Average MSM-Fair MSM difference: {df['msm_fair_msm_diff'].mean():.3f}"
-            f"Average BSM-Fair BSM difference: {df['bsm_fair_bsm_diff'].mean():.3f}"
-            f"Average Est Imp Vol difference: {df['est_imp_vol_diff'].mean():.3f}"                                                                      
-        )
+        st.write(f"Average Model difference: {df['model_diff'].mean():.3f}")
+        st.write(f"Average Fair Model difference: {df['fair_model_diff'].mean():.3f}")
+        st.write(f"Average MSM-Market difference: {df['msm_market_diff'].mean():.3f}")
+        st.write(f"Average Fair MSM-Market difference: {df['fair_msm_market_diff'].mean():.3f}")
+        st.write(f"Average BSM-Market difference: {df['bsm_market_diff'].mean():.3f}")
+        st.write(f"Average Fair BSM-Market difference: {df['fair_bsm_market_diff'].mean():.3f}")
+        st.write(f"Average MSM-Fair MSM difference: {df['msm_fair_msm_diff'].mean():.3f}")
+        st.write(f"Average BSM-Fair BSM difference: {df['bsm_fair_bsm_diff'].mean():.3f}")
+        st.write(f"Average Est Imp Vol difference: {df['est_imp_vol_diff'].mean():.3f}")
+        
 
         return df

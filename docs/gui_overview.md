@@ -39,10 +39,10 @@ Access different modules through the sidebar settings panel. Simply select your 
 
 ---
 
-## Model Testing Module
+## Option Pricing Module
 
 ### Purpose
-The Model Testing module evaluates theoretical option pricing models against specified market scenarios. This tool helps validate pricing accuracy and assess potential profitability under different market conditions.
+The Option Pricing module evaluates theoretical option pricing models against specified market scenarios. This tool helps validate pricing accuracy and assess potential profitability under different market conditions.
 
 ### Key Features
 
@@ -63,6 +63,7 @@ Advanced model incorporating stochastic volatility that accounts for:
 - Fat tails in return distributions  
 - Long-term persistence in volatility clustering
 - Regime switching between different market states
+- Timescale invariance
 
 The MSM model uses the mathematical framework:
 ```
@@ -83,43 +84,65 @@ The system employs Monte Carlo simulation with 100,000+ paths to ensure statisti
 
 ---
 
-## Option Data Processing
+# Option Data Analysis
 
-### Purpose
-This module provides comprehensive analysis of real-time and historical option chain data, enabling detailed market microstructure examination and opportunity identification.
+## Purpose
+This module provides comprehensive analysis of real-time option chain data, enabling detailed market microstructure examination and opportunity identification.
 
-### Data Structure
+## Data Structure
 The system processes complete option chains with the following key metrics:
 
-#### Contract Specifications
-- **Symbol**: Standardized option contract identifier
-- **Strike Price**: Exercise price of the option
-- **Expiration Date**: Contract maturity date
-- **Option Type**: Call or Put designation
+### Contract Specifications
+- **Symbol**: Standardized option contract identifier  
+- **Strike Price**: Exercise price of the option  
+- **Expiration Date**: Contract maturity date  
+- **Option Type**: Call or Put designation  
 
-#### Market Data
-- **Bid/Ask Prices**: Current market quotations
-- **Last Price**: Most recent transaction price
-- **Volume**: Trading activity for the session
-- **Open Interest**: Outstanding contracts
+### Market Data
+- **Bid/Ask Prices**: Current market quotations  
+- **Last Price**: Most recent transaction price  
+- **Volume**: Trading activity for the session  
+- **Open Interest**: Outstanding contracts  
 
-#### Risk Metrics
-- **Implied Volatility**: Market's expectation of future volatility
-- **Greeks**: Risk sensitivities (Delta, Gamma, Theta, Vega, Rho)
-- **Moneyness**: Relationship between spot price and strike price
+### Risk Metrics
+- **Implied Volatility**: Market's expectation of future volatility  
+- **Moneyness**: Relationship between spot price and strike price  
 
-#### Advanced Analytics
-- **Time to Maturity**: Remaining days until expiration
-- **Percentage Change**: Price movement analysis
-- **Volume-Weighted Analysis**: Liquidity considerations
+### Advanced Analytics
+- **Time to Maturity**: Remaining days until expiration  
+- **Percentage Change**: Price movement analysis  
 
-### Practical Applications
-Understanding option chain data helps identify:
-- Mispriced options relative to theoretical fair value
-- Unusual volume or open interest patterns
-- Volatility skew across different strikes
-- Time decay impact on option pricing
-- Liquidity constraints for position management
+---
+
+## Model Comparison Framework
+
+### Purpose
+To identify pricing anomalies and inconsistencies across valuation models and market data, the system provides a robust model comparison toolset. This feature enables quantitative evaluation of:
+
+- **Model vs. Market Discrepancies**  
+- **Model vs. Model Divergences**  
+- **Model vs. Fair Value Estimates**
+
+### Core Features
+- **Cross-Model Differential Analysis**: Compare pricing outputs of multiple valuation models (e.g. MSM, BSM, custom fair-value models) for identical option contracts.
+- **Market Deviations**: Measure and visualize the deviation between theoretical model prices and observed market prices.
+- **Model Consistency Checks**: Detect structural inconsistencies between different model families (e.g., stochastic volatility vs. constant volatility models).
+
+### Visualization Tools
+- **Difference Plotting**: Enables selection of specific contracts (by strike, expiry, moneyness, etc.) to plot absolute or relative differences across:
+  - Model and market price  
+  - MSM and fair MSM  
+  - BSM and fair BSM  
+  - Estimated vs. Implied volatility  
+- **Dynamic Labeling**: Clearly distinguishes lines by model origin, ensuring interpretability of multi-line comparisons.
+- **Anomaly Highlighting**: Automatically flags options with significant discrepancies (e.g. beyond z-score threshold or percentile rank) to pinpoint potential market inefficiencies.
+
+### Practical Insights
+- **Model Failures**: Spot pricing regions where a model breaks down (e.g., deep OTM options with unstable implied volatilities).
+- **Market Inefficiencies**: Detect mispricings exploitable for arbitrage or hedging strategies.
+- **Calibration Diagnostics**: Assess quality of model calibration via fair-value alignment checks.
+- **Structural Patterns**: Identify systematic biases in pricing models over time or across maturities.
+
 
 ---
 
