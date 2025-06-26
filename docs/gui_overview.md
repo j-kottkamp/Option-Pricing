@@ -127,13 +127,12 @@ To identify pricing anomalies and inconsistencies across valuation models and ma
 - **Model Consistency Checks**: Detect structural inconsistencies between different model families (e.g., stochastic volatility vs. constant volatility models).
 
 ### Visualization Tools
-- **Difference Plotting**: Enables selection of specific contracts (by strike, expiry, moneyness, etc.) to plot absolute or relative differences across:
+- **Difference Plotting**: Enables selection of specific contracts (by strike, expiry, moneyness, etc.) to plot differences across:
   - Model and market price  
   - MSM and fair MSM  
   - BSM and fair BSM  
   - Estimated vs. Implied volatility  
-- **Dynamic Labeling**: Clearly distinguishes lines by model origin, ensuring interpretability of multi-line comparisons.
-- **Anomaly Highlighting**: Automatically flags options with significant discrepancies (e.g. beyond z-score threshold or percentile rank) to pinpoint potential market inefficiencies.
+
 
 ### Practical Insights
 - **Model Failures**: Spot pricing regions where a model breaks down (e.g., deep OTM options with unstable implied volatilities).
