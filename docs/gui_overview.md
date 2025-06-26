@@ -112,8 +112,6 @@ The system processes complete option chains with the following key metrics:
 - **Time to Maturity**: Remaining days until expiration  
 - **Percentage Change**: Price movement analysis  
 
----
-
 ## Model Comparison Framework
 
 ### Purpose
