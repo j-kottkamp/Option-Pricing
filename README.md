@@ -10,7 +10,6 @@ The system is built to analyze and simulate option prices under both constant an
 
 ## [Graphical User Interface](docs/gui_overview.md)
 The framework now includes a complete GUI that provides access to:
-<img src="docs/images/estimated_profit.png" alt="Chart" width="700"/>
 
 - Interactive model testing and validation
 - Visual path simulation monitoring

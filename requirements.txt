@@ -1,16 +1,14 @@
-pip install numpy pandas matplotlib statsmodels streamlit seaborn yahooquery requests json datetime dotenv
+numpy>=1.24
+pandas>=1.5
+matplotlib>=3.7
+streamlit>=1.30
+seaborn>=0.12
+yahooquery>=2.3
+requests>=2.31
+python-dotenv>=1.0
+scipy>=1.10
+plotly>=5.17
 
-numpy,
-pandas,
-matplotlib,
-statsmodels,
-streamlit,
-seaborn,
-yahooquery,
-requests,
-json,
-datetime,
-doten
 
 
 
