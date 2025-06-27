@@ -8,6 +8,7 @@ requests>=2.31
 python-dotenv>=1.0
 scipy>=1.10
 plotly>=5.17
+statsmodels
 
 
 
