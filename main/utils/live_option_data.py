@@ -57,7 +57,7 @@ class OptionData:
         option_matrix = self.chain.pivot_table(
             index=matrix_params[0],
             columns=matrix_params[1],
-            values=matrix_params[2]
+            values=matrix_params[2],
         )
         
         rows, cols = option_matrix.shape

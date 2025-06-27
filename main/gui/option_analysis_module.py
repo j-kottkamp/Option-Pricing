@@ -1,4 +1,4 @@
-from imports import st, np, plt, datetime, pd
+from imports import st, np, plt, sns, pd
 from utils.live_option_data import OptionData
 from models.msm import MSMModel
 from models.bsm import BSMModel
@@ -59,15 +59,23 @@ class OptionAnalysisConfig:
         )
         if compare:
             self.compare_default()
-                    
-        st.write(
-            "For better readability, hover over top bar and click the three dots next to the data column.\nThen select 'Autosize'"
-        )
-        
-        if option_data is not None and not option_data.empty:
-            st.dataframe(option_data, use_container_width=True)
+            
         else:
-            st.warning("No data available for the selected option.")
+            matrix = st.sidebar.checkbox(
+                "Create custom Matrix?"
+            )
+            if matrix:
+                self.create_matrix()
+                
+            else:      
+                st.write(
+                    "For better readability, hover over top bar and click the three dots next to the data column.\nThen select 'Autosize'"
+                )
+                
+                if option_data is not None and not option_data.empty:
+                    st.dataframe(option_data, use_container_width=True)
+                else:
+                    st.warning("No data available for the selected option.")
             
     def compare_sidebar(self):
         st.markdown("## Option Parameter Selection")
@@ -91,8 +99,7 @@ class OptionAnalysisConfig:
             )
         
         return ttm, strike
-        
-        
+            
     def compare_default(self):
         ttm, strike = self.compare_sidebar()
         df = self.option_model_comparison(ttm, strike)
@@ -143,7 +150,6 @@ class OptionAnalysisConfig:
             
             st.pyplot(fig)
             
-    
     def option_model_comparison(self, ttm, strike):
         log_returns = np.log(self.prices["close"] / self.prices["close"].shift(1)).dropna()
         sigma_est = log_returns.std() * np.sqrt(252) # annualize
@@ -207,7 +213,7 @@ class OptionAnalysisConfig:
             df = pd.concat([df, pd.DataFrame([new_row])])
             
             # Debug
-            print(f"- - - Nr. {i - 1} - - -")
+            print(f"- - - Nr. {i} - - -")
             print(f"Strike: {K}, TTM: {T}, Imp Vol: {imp_vol}, Est Vol: {sigma_est:.3f}")
             print(f"Market Price: {market_price}")
             print(f"Fair BSM Price:   {fair_bsm_price}")
@@ -240,3 +246,27 @@ class OptionAnalysisConfig:
         
 
         return df
+    
+    def create_matrix(self):
+        params = ["expiration", "strike", "impliedVolatility", "timeToMaturity", "moneyness", "lastPrice", "bid", "ask", "volume", 
+            "percentChange", "change", "openInterest", "currency", "contractSize", "lastTradeDate", "inTheMoney"]
+        
+        params_x = st.sidebar.selectbox(
+            "Choose matrix parameter (index):",
+            params,
+            help="Choose parameters in order. X -> Y -> Val."
+        )
+        params_y = st.sidebar.selectbox(
+            "Choose matrix parameter (columns):",
+            [p for p in params if p != params_x],
+        )
+        params_val = st.sidebar.selectbox(
+            "Choose value to display:",
+            [p for p in params if p != params_x and p != params_y],
+        )
+        
+        matrix_params = [params_x, params_y, params_val]
+        
+        matrix = self.chain.create_option_matrix(matrix_params=matrix_params)
+        
+        st.dataframe(matrix)

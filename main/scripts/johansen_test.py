@@ -12,8 +12,8 @@ def build_data(tickers = ["PEP", "KO"]):
                 "adj": "raw",
                 "feed": "sip",
                 "sort": "asc",
-                "start": "2025-06-05", # %Y-%m-%d, Default: the beginning of the current day.
-                "end": "2025-06-23", 
+                "start": "2025-06-09", # %Y-%m-%d, Default: the beginning of the current day.
+                "end": "2025-06-25", 
                 "live": False} # If live, neither start nor end parameters are required. Returns "limit" bars.
 
     Y = pd.DataFrame()
@@ -25,8 +25,6 @@ def build_data(tickers = ["PEP", "KO"]):
         Y[ticker] = df["close"]
         
     Y = Y.dropna()
-    print(f"\n{df["timestamps"].iloc[0].date()} - {df["timestamps"].iloc[-1].date()}")
-    
     return Y, tickers
 
 def select_optimal_lag(Y, maxlags=10):
@@ -66,11 +64,10 @@ def estimate_half_life(spread):
     return -np.log(2) / theta if theta != 0 else np.inf
 
 def backtest_pair(Y, vector, spread, z_score, entry_z=1.5, exit_z=0.0, cost=0.00):
-    # Hedge ratio
     beta = vector[1]
 
     trades = []
-    position = None  # None, 'long', or 'short'
+    position = None
     entry_index = None
 
     for t in range(30, len(z_score)):
@@ -135,7 +132,7 @@ def plot_metrics(Y, tickers, vector, spread, pval, z_score):
     plt.show()
 
 
-def find_pairs(backtest=True, plot=False):
+def main(backtest=True, plot=False):
     '''
     - pairs: 2d list with each item containing 2 correct ticker symbols in string
     format.
@@ -233,8 +230,5 @@ def find_pairs(backtest=True, plot=False):
         print(f"\n{pair}")
         print(trade_dfs[pair])
     
-    
-    
-    
 if __name__ == "__main__":
-    find_pairs()
+    main()
