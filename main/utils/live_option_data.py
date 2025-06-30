@@ -11,6 +11,7 @@ class OptionData:
         try:
             self.chain = Ticker(self.ticker).option_chain
             spot = Ticker(self.ticker).price[self.ticker]['regularMarketPrice']
+            print(spot)
         except Exception as e:
             msg = f"Invalid response for ticker '{self.ticker}'. Using fallback 'AAPL'."
             try:
