@@ -10,7 +10,7 @@ class OptionData:
             dict = Ticker(self.ticker).price[self.ticker]
             # Should be spot = dict['regularMarketPrice'] but throws error: 
             # TypeError: string indices must be integers, not 'str'
-            spot = dict[10] 
+            spot = dict['regularMarketPrice']
 
         except Exception as e:
             msg = f"Invalid response for ticker '{self.ticker}'. Using fallback 'AAPL'."
@@ -22,9 +22,9 @@ class OptionData:
             # fallback default values
             self.chain = Ticker("AAPL").option_chain
             dict = Ticker("AAPL").price["AAPL"]
-            spot = dict[10]
+            spot = dict['regularMarketPrice']
             
-            
+        print(type(self.chain))
         if self.option_type == "call":
             self.chain = self.chain.xs("calls", level=2).reset_index()
         elif self.option_type == "put":
