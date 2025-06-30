@@ -8,10 +8,11 @@ class OptionData:
     def format_df(self):
         try:
             self.chain = Ticker(self.ticker).option_chain
-            price = Ticker(self.ticker).price[self.ticker]
-            print(price)
-            spot = price['regularMarketPrice']
+            dict = Ticker(self.ticker).price[self.ticker]
+            spot = dict['regularMarketPrice']
             print(spot)
+
+
         except Exception as e:
             msg = f"Invalid response for ticker '{self.ticker}'. Using fallback 'AAPL'."
             try:
