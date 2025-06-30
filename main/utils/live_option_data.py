@@ -8,7 +8,9 @@ class OptionData:
         try:
             self.chain = Ticker(self.ticker).option_chain
             dict = Ticker(self.ticker).price[self.ticker]
-            spot = dict['regularMarketPrice']
+            # Should be spot = dict['regularMarketPrice'] but throws error: 
+            # TypeError: string indices must be integers, not 'str'
+            spot = dict[10] 
 
         except Exception as e:
             msg = f"Invalid response for ticker '{self.ticker}'. Using fallback 'AAPL'."
