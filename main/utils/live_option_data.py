@@ -12,7 +12,6 @@ class OptionData:
             spot = dict['regularMarketPrice']
             print(spot)
 
-
         except Exception as e:
             msg = f"Invalid response for ticker '{self.ticker}'. Using fallback 'AAPL'."
             try:
@@ -22,7 +21,8 @@ class OptionData:
             
             # fallback default values
             self.chain = Ticker("AAPL").option_chain
-            spot = Ticker("AAPL").price["AAPL"]['regularMarketPrice']
+            dict = Ticker("AAPL").price["AAPL"]
+            spot = dict[10]
             
         
         if self.option_type == "call":
