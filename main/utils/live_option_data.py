@@ -20,19 +20,21 @@ class OptionData:
             except: 
                 raise ValueError(msg)
             
+            
             # fallback default values
             self.chain = Ticker("AAPL").option_chain
             dict = Ticker("AAPL").price["AAPL"]
             spot = dict['regularMarketPrice']
             
-        print(type(self.chain))
-        if self.option_type == "call":
-            self.chain = self.chain.xs("calls", level=2).reset_index()
-        elif self.option_type == "put":
-            self.chain = self.chain.xs("puts", level=2).reset_index()
-        else:
-            raise ValueError("Invalid option type. Please use 'call' or 'put'")
-        
+        try:
+            if self.option_type == "call":
+                self.chain = self.chain.xs("calls", level=2).reset_index()
+            elif self.option_type == "put":
+                self.chain = self.chain.xs("puts", level=2).reset_index()
+            else:
+                raise ValueError("Invalid option type. Please use 'call' or 'put'")
+        except:
+            st.error("Cannot access Option Data in Cloud Version. Go to 'https://github.com/j-kottkamp/Quantitative-Research' to host App locally")
 
         now = pd.Timestamp.now()
         
