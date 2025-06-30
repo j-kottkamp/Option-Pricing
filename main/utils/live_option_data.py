@@ -3,14 +3,12 @@ class OptionData:
     def __init__(self, ticker="AAPL", option_type="call"):
         self.ticker = ticker.upper()
         self.option_type = option_type
-        self.chain = None
         
     def format_df(self):
         try:
             self.chain = Ticker(self.ticker).option_chain
             dict = Ticker(self.ticker).price[self.ticker]
             spot = dict['regularMarketPrice']
-            print(spot)
 
         except Exception as e:
             msg = f"Invalid response for ticker '{self.ticker}'. Using fallback 'AAPL'."
@@ -24,7 +22,7 @@ class OptionData:
             dict = Ticker("AAPL").price["AAPL"]
             spot = dict[10]
             
-        
+            
         if self.option_type == "call":
             self.chain = self.chain.xs("calls", level=2).reset_index()
         elif self.option_type == "put":
