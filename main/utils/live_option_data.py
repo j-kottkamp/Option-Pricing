@@ -6,9 +6,8 @@ class OptionData:
         
     def format_df(self):
         try:
-            self.chain = Ticker(self.ticker, asynchronous=False).option_chain
-            self.chain.session.headers.update({'User-Agent': 'Mozilla/5.0'})
-            dict = Ticker(self.ticker, asynchronous=False).price[self.ticker]
+            self.chain = Ticker(self.ticker).option_chain
+            dict = Ticker(self.ticker).price[self.ticker]
             print(dict)
             # Should be spot = dict['regularMarketPrice'] but throws error: 
             # TypeError: string indices must be integers, not 'str'
@@ -22,8 +21,8 @@ class OptionData:
                 raise ValueError(msg)
             
             # fallback default values
-            self.chain = Ticker("AAPL", asynchronous=False).option_chain
-            dict = Ticker("AAPL", asynchronous=False).price["AAPL"]
+            self.chain = Ticker("AAPL").option_chain
+            dict = Ticker("AAPL").price["AAPL"]
             spot = dict['regularMarketPrice']
             
         print(type(self.chain))
