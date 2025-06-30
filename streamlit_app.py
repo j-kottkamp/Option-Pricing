@@ -1,7 +1,10 @@
 import os
 import runpy
 
-# Set working directory to main
-os.chdir(os.path.dirname(__file__))
+cwd = os.getcwd()
 
-runpy.run_path("main/scripts/open_gui.py", run_name="__main__")
+os.chdir("main")
+try:
+    runpy.run_path("scripts/open_gui.py", run_name="__main__")
+finally:
+    os.chdir(cwd)
