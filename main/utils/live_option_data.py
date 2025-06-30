@@ -6,31 +6,80 @@ class OptionData:
         
     def format_df(self):
         try:
-            self.chain = Ticker(self.ticker).option_chain
-            dict = Ticker(self.ticker).price[self.ticker]
-            # Should be spot = dict['regularMarketPrice'] but throws error: 
-            # TypeError: string indices must be integers, not 'str'
-            spot = dict['regularMarketPrice']
+            print(f"\n[INFO] Requesting option chain and price for ticker: {self.ticker}")
+
+            ticker_obj = Ticker(self.ticker)
+            
+            self.chain = ticker_obj.option_chain
+            print(f"[DEBUG] type(self.chain): {type(self.chain)}")
+            print(f"[DEBUG] self.chain keys (if dict-like): {getattr(self.chain, 'keys', lambda: 'N/A')()}")
+
+            price_data = ticker_obj.price
+            print(f"[DEBUG] type(price_data): {type(price_data)}")
+            print(f"[DEBUG] price_data content: {price_data}")
+
+            # Check if ticker key exists and is dict
+            if self.ticker not in price_data:
+                raise KeyError(f"Ticker '{self.ticker}' not found in price_data")
+
+            ticker_price = price_data[self.ticker]
+            print(f"[DEBUG] type(ticker_price): {type(ticker_price)}")
+            print(f"[DEBUG] ticker_price content: {ticker_price}")
+
+            if not isinstance(ticker_price, dict):
+                raise TypeError("Expected dictionary for ticker_price, got something else.")
+
+            spot = ticker_price['regularMarketPrice']
+            print(f"[INFO] Spot price for {self.ticker}: {spot}")
 
         except Exception as e:
-            msg = f"Invalid response for ticker '{self.ticker}'. Using fallback 'AAPL'."
+            msg = f"[ERROR] Invalid response for ticker '{self.ticker}': {e}. Using fallback 'AAPL'."
+            print(msg)
+
             try:
+                import streamlit as st
                 st.error(msg)
-            except: 
-                raise ValueError(msg)
-            
+            except Exception as streamlit_error:
+                print(f"[WARNING] Streamlit not available or failed: {streamlit_error}")
+
             # fallback default values
-            self.chain = Ticker("AAPL").option_chain
-            dict = Ticker("AAPL").price["AAPL"]
-            spot = dict['regularMarketPrice']
-            
-        print(type(self.chain))
-        if self.option_type == "call":
-            self.chain = self.chain.xs("calls", level=2).reset_index()
-        elif self.option_type == "put":
-            self.chain = self.chain.xs("puts", level=2).reset_index()
-        else:
-            raise ValueError("Invalid option type. Please use 'call' or 'put'")
+            ticker_obj = Ticker("AAPL")
+            self.chain = ticker_obj.option_chain
+            print(f"[DEBUG] fallback self.chain type: {type(self.chain)}")
+
+            price_data = ticker_obj.price
+            print(f"[DEBUG] fallback price_data: {price_data}")
+
+            ticker_price = price_data["AAPL"]
+            print(f"[DEBUG] fallback ticker_price type: {type(ticker_price)}")
+            print(f"[DEBUG] fallback ticker_price content: {ticker_price}")
+
+            if not isinstance(ticker_price, dict):
+                raise TypeError("Fallback ticker_price is not a dictionary!")
+
+            spot = ticker_price['regularMarketPrice']
+            print(f"[INFO] Fallback spot price: {spot}")
+
+        # Check again: What is self.chain at this point?
+        print(f"[DEBUG] Final type of self.chain: {type(self.chain)}")
+
+        # Convert MultiIndex DataFrame into flat one
+        try:
+            if self.option_type == "call":
+                print("[INFO] Extracting call options")
+                self.chain = self.chain.xs("calls", level=2).reset_index()
+            elif self.option_type == "put":
+                print("[INFO] Extracting put options")
+                self.chain = self.chain.xs("puts", level=2).reset_index()
+            else:
+                raise ValueError("Invalid option type. Please use 'call' or 'put'")
+        except AttributeError as ae:
+            print(f"[ERROR] self.chain does not support .xs(): {ae}")
+            print(f"[DEBUG] self.chain content: {self.chain}")
+            raise
+        except Exception as e:
+            print(f"[ERROR] Unexpected error while slicing option chain: {e}")
+            raise
         
 
         now = pd.Timestamp.now()
