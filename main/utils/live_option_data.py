@@ -88,7 +88,10 @@ class OptionData:
 
     def get_option_data(self, data="impliedVolatility"):
         self.format_df()
-        return self.chain[data]
+        try:
+            return self.chain[data]
+        except:
+            return
     
     def return_full_data(self):
         self.format_df()
