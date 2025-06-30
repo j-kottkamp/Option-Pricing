@@ -11,7 +11,6 @@ from gui.main_config import main_config_page
 def main():
     application = main_config_page()
     if application == "Option Pricing Module":
-        st.write("hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh")
         module = OptionPricingConfig()
         model_type = module.option_pricing_default()
         if model_type == "Black-Scholes-Merton":

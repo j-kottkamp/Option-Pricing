@@ -4,13 +4,13 @@ class OptionData:
         self.ticker = ticker.upper()
         self.option_type = option_type
         self.chain = None
-        self.spot_price = None
-        self.now = None
         
     def format_df(self):
         try:
             self.chain = Ticker(self.ticker).option_chain
-            spot = Ticker(self.ticker).price[self.ticker]['regularMarketPrice']
+            price = Ticker(self.ticker).price[self.ticker]
+            print(price)
+            spot = price['regularMarketPrice']
             print(spot)
         except Exception as e:
             msg = f"Invalid response for ticker '{self.ticker}'. Using fallback 'AAPL'."
