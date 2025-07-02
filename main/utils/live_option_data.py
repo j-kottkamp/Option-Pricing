@@ -13,6 +13,8 @@ class OptionData:
             spot = dict['regularMarketPrice']
             print("[INFO] Set Spot price with dict[str]")
             print(f"spot: {spot}\ndict: {dict}")
+            print(self.chain)
+            print(self.chain.values)
 
         except Exception as e:
             msg = f"Invalid response for ticker '{self.ticker}'. Using fallback 'AAPL'."
