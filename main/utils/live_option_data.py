@@ -14,7 +14,6 @@ class OptionData:
             print("[INFO] Set Spot price with dict[str]")
             print(f"spot: {spot}\ndict: {dict}")
             print(self.chain)
-            print(self.chain.values)
 
         except Exception as e:
             msg = f"Invalid response for ticker '{self.ticker}'. Using fallback 'AAPL'."
@@ -46,7 +45,13 @@ class OptionData:
         self.chain = self.chain.set_index("contractSymbol")
         self.chain["timeToMaturity"] = ((self.chain["expiration"] - now).dt.total_seconds() / (365 * 24 * 3600)).round(3)
         self.chain["moneyness"] = (self.chain["strike"] / spot).round(3)
-                
+        
+        print(self.chain)
+        try:
+            print(self.chain["impliedVolatility"])
+        except:
+            print("Unable to get impliedVolatility")
+            
         params = ["strike", "lastPrice", "change", "percentChange", "volume", "openInterest", "bid", "ask", "contractSize", "impliedVolatility"]
         for item in params:
             print(f"[Info] Item: {item}")
