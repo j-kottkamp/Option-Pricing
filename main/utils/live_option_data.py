@@ -12,6 +12,7 @@ class OptionData:
             # TypeError: string indices must be integers, not 'str'
             spot = dict['regularMarketPrice']
             print("[INFO] Set Spot price with dict[str]")
+            print(f"spot: {spot}\ndict: {dict}")
 
         except Exception as e:
             msg = f"Invalid response for ticker '{self.ticker}'. Using fallback 'AAPL'."
