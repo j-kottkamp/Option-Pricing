@@ -78,7 +78,7 @@ class OptionAnalysisConfig:
                     st.warning("No data available for the selected option.")
             
     def compare_sidebar(self):
-        st.markdown("## Option Parameter Selection")
+        st.sidebar.markdown("## Option Parameter Selection")
         
         last_price = self.prices["close"].iloc[-1]
 
@@ -160,6 +160,11 @@ class OptionAnalysisConfig:
         min_ttm , max_ttm = ttm[0], ttm[1]
         min_strike , max_strike = strike[0], strike[1]
         
+        print(f"TTMs: 0. {ttm[0]}, 1. {ttm[1]}")
+        print(f"MinMax TTM {min_ttm}, {max_ttm}")
+        print(f"Strikes: 0. {strike[0]}, 1. {strike[1]}")
+        print(f"MinMax Strike {min_strike}, {max_strike}")
+       
         filtered_df = option_chain_df[
             (option_chain_df["timeToMaturity"] > min_ttm) &
             (option_chain_df["timeToMaturity"] < max_ttm) &
@@ -168,6 +173,8 @@ class OptionAnalysisConfig:
         ][["strike", "timeToMaturity", "impliedVolatility", "bid", "ask"]].drop_duplicates()
 
         option_pairs = filtered_df.values
+        
+        print(option_pairs)
         
         df = pd.DataFrame(columns=["K", "T", "option_price", "msm_price", "fair_msm_price", "bsm_price", "fair_bsm_price", "model_diff", "fair_model_diff", 
                                    "msm_market_diff", "fair_msm_market_diff", "bsm_market_diff", "fair_bsm_market_diff", "msm_fair_msm_diff", 
