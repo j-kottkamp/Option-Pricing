@@ -8,10 +8,10 @@ class OptionData:
         try:
             self.chain = Ticker(self.ticker).option_chain
             dict = Ticker(self.ticker).price[self.ticker]
-            print(dict)
             # Should be spot = dict['regularMarketPrice'] but throws error: 
             # TypeError: string indices must be integers, not 'str'
             spot = dict['regularMarketPrice']
+            print("[INFO] Set Spot price with dict[str]")
 
         except Exception as e:
             msg = f"Invalid response for ticker '{self.ticker}'. Using fallback 'AAPL'."
@@ -25,8 +25,10 @@ class OptionData:
                 self.chain = Ticker("AAPL").option_chain
                 dict = Ticker("AAPL").price["AAPL"]
                 spot = dict['regularMarketPrice']
+                print("[INFO] used Fallback Values successfully")
+                print(f"spot: {spot}\ndict: {dict}")
             except:
-                st.error("Cannot access Option Data in Cloud Version. Go to 'https://github.com/j-kottkamp/Quantitative-Research' to host App locally")
+                st.error("Cannot access Option Data in Cloud Version. Go to 'https://github.com/j-kottkamp/Quantitative-Research' to host App locally.")
                 return
         
         if self.option_type == "call":
