@@ -11,9 +11,6 @@ class OptionData:
             # Should be spot = dict['regularMarketPrice'] but throws error: 
             # TypeError: string indices must be integers, not 'str'
             spot = dict['regularMarketPrice']
-            print("[INFO] Set Spot price with dict[str]")
-            print(f"spot: {spot}\ndict: {dict}")
-            print(self.chain)
 
         except Exception as e:
             msg = f"Invalid response for ticker '{self.ticker}'. Using fallback 'AAPL'."
@@ -27,8 +24,7 @@ class OptionData:
                 self.chain = Ticker("AAPL").option_chain
                 dict = Ticker("AAPL").price["AAPL"]
                 spot = dict['regularMarketPrice']
-                print("[INFO] used Fallback Values successfully")
-                print(f"spot: {spot}\ndict: {dict}")
+
             except:
                 st.error("Cannot access Option Data in Cloud Version. Go to 'https://github.com/j-kottkamp/Quantitative-Research' to host App locally.")
                 return
@@ -46,17 +42,9 @@ class OptionData:
         self.chain["timeToMaturity"] = ((self.chain["expiration"] - now).dt.total_seconds() / (365 * 24 * 3600)).round(3)
         self.chain["moneyness"] = (self.chain["strike"] / spot).round(3)
         
-        print(self.chain)
-        try:
-            print(self.chain["impliedVolatility"])
-        except:
-            print("Unable to get impliedVolatility")
-            
         params = ["strike", "lastPrice", "change", "percentChange", "volume", "openInterest", "bid", "ask", "impliedVolatility"]
         for item in params:
-            print(f"[Info] Item: {item}")
             value = getattr(self.chain, item)
-            print(f"[Info] Value: {value}")
             rounded_val = value.round(3)
             setattr(self.chain, item, rounded_val)
             
