@@ -49,7 +49,9 @@ class OptionData:
                 
         params = ["strike", "lastPrice", "change", "percentChange", "volume", "openInterest", "bid", "ask", "contractSize", "impliedVolatility"]
         for item in params:
+            print(f"[Info] Item: {item}")
             value = getattr(self.chain, item)
+            print(f"[Info] Value: {value}")
             rounded_val = value.round(3)
             setattr(self.chain, item, rounded_val)
             
