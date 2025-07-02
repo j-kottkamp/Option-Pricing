@@ -52,7 +52,7 @@ class OptionData:
         except:
             print("Unable to get impliedVolatility")
             
-        params = ["strike", "lastPrice", "change", "percentChange", "volume", "openInterest", "bid", "ask", "contractSize", "impliedVolatility"]
+        params = ["strike", "lastPrice", "change", "percentChange", "volume", "openInterest", "bid", "ask", "impliedVolatility"]
         for item in params:
             print(f"[Info] Item: {item}")
             value = getattr(self.chain, item)
